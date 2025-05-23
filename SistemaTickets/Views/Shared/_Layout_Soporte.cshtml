@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SistemaTickets</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SistemaTickets.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #4B3EF0;
+            color: white;
+            padding: 20px 10px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+            .sidebar.hidden {
+                transform: translateX(-100%);
+            }
+
+        .main-content {
+            margin-left: 220px;
+            transition: margin-left 0.3s ease;
+        }
+
+            .main-content.full-width {
+                margin-left: 0;
+            }
+
+        .btn-sidebar {
+            background-color: transparent;
+            border: none;
+            color: white;
+            text-align: left;
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+            .btn-sidebar:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+        .toggle-btn {
+            background-color: transparent;
+            color: #4B3EF0;
+            border: none;
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+       
+
+        .sidebar {
+            position: absolute;
+            z-index: 1000;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="btn-sidebar"><i class="bi bi-plus-square"></i> Crear</button>
+        <button class="btn-sidebar"><i class="bi bi-list-check"></i> Gestión</button>
+        <button class="btn-sidebar"><i class="bi bi-people-fill"></i> Asignar</button>
+        <button class="btn-sidebar"><i class="bi bi-person-lines-fill"></i> Mis asign.</button>
+        <button class="btn-sidebar"><i class="bi bi-clock-history"></i> Historial</button>
+        <button class="btn-sidebar"><i class="bi bi-x-circle"></i> Cierre</button>
+        <button class="btn-sidebar"><i class="bi bi-bar-chart-line-fill"></i> Gráficas</button>
+        <button class="btn-sidebar"><i class="bi bi-file-earmark-text"></i> Informes</button>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content" id="mainContent">
+        <nav class="navbar navbar-light bg-white border-bottom mb-3">
+            <div class="container-fluid d-flex align-items-center">
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+                <a class="navbar-brand ms-2" asp-area="" asp-controller="Home" asp-action="Index">SistemaTickets</a>
+            </div>
+        </nav>
+
+        <main role="main" class="container pb-3">
+            @RenderBody()
+        </main>
+
+        <footer class="border-top footer text-muted mt-5">
+            <div class="container">
+                &copy; 2025 - SistemaTickets - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('mainContent');
+            sidebar.classList.toggle('hidden');
+            content.classList.toggle('full-width');
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
