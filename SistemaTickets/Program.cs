@@ -1,7 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using SistemaTickets.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Configurar la sesión
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Inyección de la conexión a la base de datos
+builder.Services.AddDbContext<SistemaTicketsContext>(opt =>
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("SistemaTicketsDbConnection"))
+);
 
 var app = builder.Build();
 
