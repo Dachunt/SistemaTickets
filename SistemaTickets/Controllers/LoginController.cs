@@ -61,24 +61,25 @@ namespace SistemaTickets.Controllers
 
             if (user != null)
             {
+
                 HttpContext.Session.SetInt32("id_usuario", user.UserId);
                 HttpContext.Session.SetString("nombre", user.Nombre);
                 HttpContext.Session.SetInt32("rol", user.RolId);
-
-                // Redireccionar según el rol
                 switch (user.RolId)
                 {
                     case 1:
-                        return RedirectToAction("Index", "Administrador");
+                        return RedirectToAction("Index", "Home");
                     case 2:
                         return RedirectToAction("Home", "SoporteTecnico");
                     default:
-                        return RedirectToAction("Index", "Usuario");
+                        return RedirectToAction("Index", "Home");
                 }
+                
             }
 
             ViewBag.Error = "Correo o contraseña incorrectos.";
             return View();
+
         }
 
         // Cerrar sesión
