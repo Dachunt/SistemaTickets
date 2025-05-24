@@ -1,47 +1,29 @@
 ﻿body {
-    background: #4c38d5;
-    min-height: 100vh;
     margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.login-container {
-    background-color: white;
-    max-width: 950px;
-    width: 100%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    border-radius: 15px;
-    overflow: hidden;
+    min-height: 100vh;
 }
 
 .login-left {
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    flex: 1;
+    background: url('/img/logo.jpg') no-repeat center center;
+    background-size: cover;
 }
 
     .login-left img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 10px;
+        display: none; 
     }
 
 .login-right {
     padding: 40px;
     background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 h3 {
     color: #003366;
-}
-
-.form-control::placeholder {
-    color: #aaa;
 }
 
 .input-group-custom {
@@ -60,6 +42,10 @@ h3 {
     transform: translateY(-50%);
     color: #003366;
     font-size: 1.2rem;
+}
+
+.form-control::placeholder {
+    color: #aaa;
 }
 
 .btn-login {
@@ -82,3 +68,4 @@ h3 {
     .forgot-link:hover {
         text-decoration: underline;
     }
+

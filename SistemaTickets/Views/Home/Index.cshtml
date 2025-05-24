@@ -1,8 +1,63 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home Page Admin";
 }
+<link href="~/css/Menu.css" rel="stylesheet" />
 
-<div class="text-center">
-    <h1 class="display-4">Bienvenido</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4">
+            <a asp-controller="Tickets" asp-action="Create" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">CREAR UN NUEVO TICKET</div>
+                    <div class="card-text">Presiona para crear un ticket nuevo</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">GESTION TICKETS</div>
+                <div class="card-text">Gestión de tickets</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">ASIGNACIONES</div>
+                <div class="card-text">Asignaciones</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">VER MIS ASIGNACIONES</div>
+                <div class="card-text">Mis asignaciones</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">HISTORIAL</div>
+                <div class="card-text">Historial</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">CIERRE DE TICKET</div>
+                <div class="card-text">Cierre de ticket</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">GRAFICAS</div>
+                <div class="card-text">Cierre de ticket</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">INFORMES</div>
+                <div class="card-text">Cierre de ticket</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+

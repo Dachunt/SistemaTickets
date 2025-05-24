@@ -14,37 +14,37 @@
     <link href="~/css/Login.css" rel="stylesheet" />
 </head>
 <body>
-
-    <div class="container login-container d-flex shadow">
+    <div class="container-fluid vh-100 d-flex p-0">
         <div class="col-md-6 login-left d-none d-md-flex">
             <img src="~/img/logo.jpg" alt="Logo" />
         </div>
 
-        <div class="col-md-6 login-right d-flex flex-column justify-content-center">
-            <h3 class="text-center mb-4 fw-bold">Inicia Sesión</h3>
+        <div class="col-md-6 login-right d-flex flex-column justify-content-center align-items-center">
+            <div class="w-75">
+                <h3 class="text-center mb-4 fw-bold">Inicia Sesión</h3>
 
-            <form asp-controller="Login" asp-action="Login" method="post">
-                <div class="input-group-custom">
-                    <i class="bi bi-person form-icon"></i>
-                    <input type="email" name="Email" class="form-control" placeholder="Email" required />
-                </div>
+                <form asp-controller="Login" asp-action="Login" method="post">
+                    <div class="input-group-custom">
+                        <i class="bi bi-person form-icon"></i>
+                        <input type="email" name="Email" class="form-control" placeholder="Email" required />
+                    </div>
 
-                <div class="input-group-custom">
-                    <i class="bi bi-lock form-icon"></i>
-                    <input type="password" name="Contrasena" class="form-control" placeholder="Contraseña" required />
-                </div>
+                    <div class="input-group-custom">
+                        <i class="bi bi-lock form-icon"></i>
+                        <input type="password" name="Contrasena" class="form-control" placeholder="Contraseña" required />
+                    </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-login">Iniciar sesión</button>
-                </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-login">Iniciar sesión</button>
+                    </div>
 
-                <div class="text-end mt-3">
-                    <a href="/Account/OlvidasteContrasena" class="forgot-link">¿Olvidaste tu contraseña?</a>
-                </div>
-            </form>
+                    <div class="text-end mt-3">
+                        <a href="/Account/OlvidasteContrasena" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
