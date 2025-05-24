@@ -9,38 +9,31 @@ namespace SistemaTickets.Models
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
-        [StringLength(100)]
+        [StringLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
         public string Nombre { get; set; }
 
-        [Required(ErrorMessage = "El apellido es obligatorio")]
-        [StringLength(100)]
-        public string Apellido { get; set; }
-
-        [Required(ErrorMessage = "El correo es obligatorio")]
-        [EmailAddress(ErrorMessage = "Ingrese un correo válido")]
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de correo no válido")]
         [StringLength(100)]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "El teléfono es obligatorio")]
+        [Phone(ErrorMessage = "Formato de teléfono inválido")]
+        [StringLength(20)]
+        public string Telefono { get; set; }
+
         [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
-            ErrorMessage = "La contraseña debe tener al menos 8 caracteres, incluir una letra, un número y un carácter especial.")]
+        [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos  caracteres")]
         public string Contrasena { get; set; }
 
-        [Required(ErrorMessage = "Seleccione un rol válido")]
+        [Required(ErrorMessage = "Debe seleccionar un rol")]
+        [ForeignKey("Rol")]
         public int RolId { get; set; }
 
+        [Display(Name = "¿Tiene empresa?")]
         public bool TieneEmpresa { get; set; } = false;
 
-        // Campos para usuarios externos
-        [StringLength(200)]
-        public string NombreEmpresa { get; set; }
-
-        [StringLength(100)]
-        public string ContactoEmpresa { get; set; }
-
-        [Phone(ErrorMessage = "Ingrese un número de teléfono válido")]
-        [StringLength(20)]
-        public string TelefonoEmpresa { get; set; }
+        public virtual Roles Rol { get; set; }
     }
 }
