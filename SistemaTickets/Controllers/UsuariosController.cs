@@ -28,14 +28,12 @@ namespace SistemaTickets.Controllers
             ViewBag.Roles = roles;
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar(Usuarios usuario, string NombreEmpresa, string NombreResponsable, string EmailEmpresa, string TelefonoEmpresa)
         {
             ViewBag.Roles = _context.Roles.ToList();
 
-            // Validar correo duplicado
             bool correoExiste = await _context.Usuarios.AnyAsync(u => u.Email == usuario.Email);
             if (correoExiste)
             {
@@ -43,9 +41,9 @@ namespace SistemaTickets.Controllers
                 return View(usuario);
             }
 
-            usuario.TieneEmpresa = usuario.Nombre == "Externo";
+            var rol = await _context.Roles.FindAsync(usuario.RolId);
+            usuario.TieneEmpresa = rol != null && rol.NombreRol == "Externo";
 
-            // Hashear la contraseña
             usuario.Contrasena = _hasher.HashPassword(usuario, usuario.Contrasena);
 
             _context.Usuarios.Add(usuario);
@@ -53,7 +51,6 @@ namespace SistemaTickets.Controllers
 
             if (usuario.TieneEmpresa)
             {
-
                 var externo = new Externo
                 {
                     NombreEmpresa = NombreEmpresa,
@@ -76,19 +73,153 @@ namespace SistemaTickets.Controllers
             }
 
             TempData["Success"] = "Usuario registrado correctamente.";
-            return RedirectToAction("Registrar");
+            return RedirectToAction("Index");
         }
+
         public async Task<IActionResult> Index()
         {
             var usuarios = await _context.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.UsuarioEmpresa)
+                .Where(u => u.Estado == true)
                 .ToListAsync();
 
             ViewBag.Roles = await _context.Roles.ToListAsync();
 
             return View(usuarios);
         }
+        public async Task<IActionResult> VerEmpresas(int id)
+        {
+            var usuario = await _context.Usuarios
+                .Include(u => u.UsuarioEmpresa)
+                    .ThenInclude(ue => ue.Externo)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (usuario == null)
+                return NotFound();
+
+            ViewBag.UsuarioId = id;
+            return View(usuario);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarEmpresa(int userId, string NombreEmpresa, string NombreResponsable, string EmailEmpresa, string TelefonoEmpresa)
+        {
+            var usuario = await _context.Usuarios.FindAsync(userId);
+
+            if (usuario == null)
+                return NotFound();
+
+            var nuevaEmpresa = new Externo
+            {
+                NombreEmpresa = NombreEmpresa,
+                NombreResponsable = NombreResponsable,
+                Email = EmailEmpresa,
+                Telefono = TelefonoEmpresa
+            };
+
+            _context.Externo.Add(nuevaEmpresa);
+            await _context.SaveChangesAsync();
+
+            var relacion = new UsuarioEmpresa
+            {
+                UserId = userId,
+                ExternoId = nuevaEmpresa.ExternoId
+            };
+
+            _context.UsuarioEmpresa.Add(relacion);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Empresa agregada exitosamente.";
+            return RedirectToAction("VerEmpresas", new { id = userId });
+        }
+        // GET: Usuarios/Detalles/5
+        public async Task<IActionResult> Detalles(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.UsuarioEmpresa) 
+                    .ThenInclude(ue => ue.Externo) 
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.UsuarioId = usuario.UserId;
+            return View(usuario);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.UserId == id);
+            if (usuario == null)
+            {
+                TempData["Error"] = "Usuario no encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            return View(usuario);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(Usuarios usuario)
+        {
+            var usuarioExistente = await _context.Usuarios.FirstOrDefaultAsync(u => u.UserId == usuario.UserId);
+
+            if (usuarioExistente == null)
+            {
+                TempData["Error"] = "Usuario no encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            usuarioExistente.Nombre = usuario.Nombre;
+            usuarioExistente.Email = usuario.Email;
+            usuarioExistente.Telefono = usuario.Telefono;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Usuario actualizado correctamente.";
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            var usuario = await _context.Usuarios
+                .Include(u => u.UsuarioEmpresa)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (usuario == null)
+            {
+                TempData["Error"] = "Usuario no encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            if (usuario.UsuarioEmpresa == null || usuario.UsuarioEmpresa.Count == 0)
+            {
+                usuario.Estado = false;
+                _context.Usuarios.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Usuario desactivado correctamente.";
+            }
+            else
+            {
+                TempData["Error"] = "El usuario tiene empresas asociadas. No se puede desactivar.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
     }
 

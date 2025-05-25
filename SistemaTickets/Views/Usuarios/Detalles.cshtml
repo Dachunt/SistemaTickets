@@ -1,0 +1,47 @@
+﻿@model SistemaTickets.Models.Usuarios
+
+@{
+    ViewBag.Title = "Detalles del Usuario";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-blue fw-bold">Detalles del Usuario</h2>
+    <a asp-action="Index" class="btn btn-outline-primary btn-sm text-blue"><i class="fas fa-arrow-left"></i> Volver</a>
+</div>
+<div class="card-body">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Nombre:</strong>
+            <div class="text-muted">@Model.Nombre</div>
+        </div>
+        <div class="col-md-6">
+            <strong>Email:</strong>
+            <div class="text-muted">@Model.Email</div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong>Teléfono:</strong>
+            <div class="text-muted">@Model.Telefono</div>
+        </div>
+        <div class="col-md-6">
+            <strong>Rol:</strong>
+            <div class="text-muted">@Model.Rol?.NombreRol</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <strong>¿Tiene empresa?</strong>
+            <div class="text-muted">
+                @(Model.TieneEmpresa ? "Sí" : "No")
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -35,6 +35,7 @@ namespace SistemaTickets.Models
 
         [Display(Name = "¿Tiene empresa?")]
         public bool TieneEmpresa { get; set; }
+        public bool Estado { get; set; } = true;
         // Relación con UsuarioEmpresa
         public ICollection<UsuarioEmpresa> UsuarioEmpresa { get; set; } = new List<UsuarioEmpresa>();
     }
