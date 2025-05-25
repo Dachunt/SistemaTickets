@@ -7,20 +7,18 @@ namespace SistemaTickets.Models
         [Key]
         public int ExternoId { get; set; }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "El nombre de la empresa es obligatorio")]
         public string NombreEmpresa { get; set; }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "El nombre del responsable es obligatorio")]
         public string NombreResponsable { get; set; }
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "El correo es obligatorio")]
         [EmailAddress]
         public string Email { get; set; }
 
-        [MaxLength(20)]
+        [Required(ErrorMessage = "El teléfono es obligatorio")]
+        [Phone]
         public string Telefono { get; set; }
     }
 }

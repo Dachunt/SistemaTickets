@@ -28,12 +28,14 @@ namespace SistemaTickets.Models
         public string Contrasena { get; set; }
 
         [Required(ErrorMessage = "Debe seleccionar un rol")]
-        [ForeignKey("Rol")]
         public int RolId { get; set; }
 
-        [Display(Name = "¿Tiene empresa?")]
-        public bool TieneEmpresa { get; set; } = false;
+        [ForeignKey("RolId")]
+        public Roles Rol { get; set; }
 
-        public virtual Roles Rol { get; set; }
+        [Display(Name = "¿Tiene empresa?")]
+        public bool TieneEmpresa { get; set; }
+        // Relación con UsuarioEmpresa
+        public ICollection<UsuarioEmpresa> UsuarioEmpresa { get; set; } = new List<UsuarioEmpresa>();
     }
 }

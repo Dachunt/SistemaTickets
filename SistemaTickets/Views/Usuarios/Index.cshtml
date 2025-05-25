@@ -1,0 +1,125 @@
+﻿@model List<SistemaTickets.Models.Usuarios>
+@using SistemaTickets.Models
+@{
+    ViewBag.Title = "Lista de Usuarios";
+    var roles = ViewBag.Roles as List<Roles>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css">
+
+
+<div class="card shadow p-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-blue fw-bold">Usuarios</h2>
+        <a asp-action="Registrar" class="btn btn-primary rounded-pill">
+            <i class="fas fa-plus me-2"></i> Agregar Usuario
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text" id="filtroNombre" class="form-control rounded-pill" placeholder="Buscar por nombre" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="filtroEmail" class="form-control rounded-pill" placeholder="Buscar por email" />
+        </div>
+        <div class="col-md-3">
+            <select id="filtroRol" class="form-select rounded-pill">
+                <option value="">Todos los roles</option>
+                @foreach (var rol in roles)
+                {
+                    <option value="@rol.NombreRol">@rol.NombreRol</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button id="limpiarFiltros" class="btn btn-outline-secondary w-100 rounded-pill">
+                <i class="fas fa-eraser"></i> Limpiar
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table align-middle" id="tablaUsuarios">
+            <thead class="table-light">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th class="text-center">Empresa</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+                        <td class="col-nombre">@usuario.Nombre</td>
+                        <td class="col-email">@usuario.Email</td>
+                        <td>@usuario.Telefono</td>
+                        <td class="col-rol">@usuario.Rol?.NombreRol</td>
+                        <td class="text-center">
+                            @if (usuario.TieneEmpresa)
+                            {
+                                <a asp-controller="Empresas" asp-action="VerEmpresasPorUsuario" asp-route-id="@usuario.UserId"
+                                   class="btn btn-outline-secondary btn-sm rounded-circle" title="Ver empresas">
+                                    <i class="fas fa-building"></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Editar" asp-route-id="@usuario.UserId" class="btn btn-sm btn-secondary rounded-circle me-2" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a asp-action="Eliminar" asp-route-id="@usuario.UserId" class="btn btn-sm btn-danger rounded-circle" title="Eliminar">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function filtrarTabla() {
+                var nombre = $('#filtroNombre').val().toLowerCase();
+                var email = $('#filtroEmail').val().toLowerCase();
+                var rol = $('#filtroRol').val().toLowerCase();
+
+                $('#tablaUsuarios tbody tr').each(function () {
+                    var fila = $(this);
+                    var nombreFila = fila.find('.col-nombre').text().toLowerCase();
+                    var emailFila = fila.find('.col-email').text().toLowerCase();
+                    var rolFila = fila.find('.col-rol').text().toLowerCase();
+
+                    var coincide = true;
+
+                    if (nombre && !nombreFila.includes(nombre)) coincide = false;
+                    if (email && !emailFila.includes(email)) coincide = false;
+                    if (rol && rolFila !== rol) coincide = false;
+
+                    fila.toggle(coincide);
+                });
+            }
+
+            $('#filtroNombre, #filtroEmail, #filtroRol').on('input change', filtrarTabla);
+
+            $('#limpiarFiltros').click(function () {
+                $('#filtroNombre').val('');
+                $('#filtroEmail').val('');
+                $('#filtroRol').val('');
+                filtrarTabla();
+            });
+        });
+    </script>
+}

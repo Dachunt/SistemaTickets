@@ -1,0 +1,89 @@
+﻿body {
+    background-color: #f5f7ff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(76, 56, 213, 0.15);
+    padding: 40px 30px;
+    background-color: white;
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+    transition: box-shadow 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: 0 15px 45px rgba(76, 56, 213, 0.3);
+    }
+
+h2 {
+    color: #4c38d5;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+label {
+    font-weight: 600;
+    color: #3a3279;
+}
+
+input.form-control,
+select.form-control {
+    border-radius: 12px;
+    border: 1.8px solid #ddd;
+    height: 44px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+    input.form-control:focus,
+    select.form-control:focus {
+        border-color: #4c38d5;
+        box-shadow: 0 0 8px rgba(76, 56, 213, 0.3);
+        outline: none;
+    }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #4c38d5;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #3a2ab8;
+    }
+
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+#empresaCampos {
+    border: 1.5px solid #4c38d5;
+    border-radius: 15px;
+    padding: 20px 25px;
+    margin-top: 25px;
+    background-color: #f0f1ff;
+}
+
+    #empresaCampos h5 {
+        color: #4c38d5;
+        font-weight: 700;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #4c38d5;
+        padding-bottom: 5px;
+    }
+.text-blue {
+    color: #4c38d5;
+}

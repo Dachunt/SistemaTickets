@@ -1,0 +1,23 @@
+﻿@model SistemaTickets.Models.Usuarios
+<link rel="stylesheet" href="/css/usuarios.css">
+
+<div class="card">
+    <h2>Detalles del Usuario</h2>
+    <p><strong>Nombre:</strong> @Model.Nombre</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Rol:</strong> @Model.Rol?.NombreRol</p>
+
+    @if (Model.TieneEmpresa && Model.UsuarioEmpresa != null)
+    {
+        <div id="empresaCampos">
+            <h5>Empresas Asociadas</h5>
+            <ul>
+                @foreach (var relacion in Model.UsuarioEmpresa)
+                {
+                    <li><strong>Empresa:</strong> @relacion.Externo?.NombreEmpresa</li>
+                }
+            </ul>
+            <a href="@Url.Action("AgregarEmpresa", new { id = Model.UserId })" class="btn btn-primary btn-sm">Agregar otra empresa</a>
+        </div>
+    }
+</div>
