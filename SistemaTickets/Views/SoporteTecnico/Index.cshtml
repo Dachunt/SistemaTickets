@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Dashboard Soporte Técnico";
+    Layout = "~/Views/Shared/_Layout_Soporte.cshtml";
+    var tiempoPromedio = ViewBag.TiempoPromedio;
+    var enProceso = ViewBag.EnProceso;
+    var resueltos = ViewBag.Resueltos;
+    var ticketsPorMes = ViewBag.TicketsPorMes;
+    var categorias = ViewBag.Categorias;
+}
+
+<h2>Informes y Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <i class="fas fa-clock fa-2x mb-2"></i>
+            <h5>Tiempo Promedio de Resolución:</h5>
+            <p class="lead">@tiempoPromedio días</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <i class="fas fa-tasks fa-2x mb-2"></i>
+            <h5>En Proceso:</h5>
+            <p class="lead">@enProceso</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <i class="fas fa-check fa-2x mb-2"></i>
+            <h5>Resueltos:</h5>
+            <p class="lead">@resueltos</p>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-5">Grafica de barras: Tickets recibidos por mes</h4>
+<canvas id="ticketsBarChart" height="100"></canvas>
+
+<h4 class="mt-5">Grafica de pastel: Categorías de problemas</h4>
+<canvas id="categoriasPieChart" height="100"></canvas>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Datos para gráfica de barras
+        const barLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            ((IEnumerable<dynamic>)ticketsPorMes).Select(x => $"{x.Mes}/{x.Año}")
+        ));
+        const barData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            ((IEnumerable<dynamic>)ticketsPorMes).Select(x => x.Cantidad)
+        ));
+
+        const barChart = new Chart(document.getElementById('ticketsBarChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    label: 'Tickets por mes',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    data: barData
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Datos para gráfica de pastel
+        const pieLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            ((IEnumerable<dynamic>)categorias).Select(c => c.Categoria)
+        ));
+        const pieData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+            ((IEnumerable<dynamic>)categorias).Select(c => c.Cantidad)
+        ));
+
+        const pieChart = new Chart(document.getElementById('categoriasPieChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    backgroundColor: [
+                        '#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#f44336', '#00bcd4'
+                    ],
+                    data: pieData
+                }]
+            }
+        });
+    </script>
+}
