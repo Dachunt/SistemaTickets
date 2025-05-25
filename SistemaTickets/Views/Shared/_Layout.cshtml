@@ -62,14 +62,21 @@
                 }
                 else if (rol == 2)
                 {
+                    <a asp-area="" asp-controller="Tickets" asp-action="Create" class="list-group-item list-group-item-action">
+                        <i class="bi bi-plus-square"></i>
+                        Crear
+                    </a>
                     <a asp-controller="SoporteTecnico" asp-action="Home" class="list-group-item list-group-item-action">
                         <i class="bi bi-houses-fill"></i> Inicio
                     </a>
-                    <a asp-controller="Ticket" asp-action="Crear" class="list-group-item list-group-item-action">
-                        <i class="bi bi-plus-square-fill"></i> Crear Ticket
-                    </a>
                     <a asp-controller="Ticket" asp-action="MisTickets" class="list-group-item list-group-item-action">
                         <i class="bi bi-ticket-detailed-fill"></i> Mis Tickets
+                    </a>
+                    <a asp-controller="SoporteTecnico" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="bi bi-bar-chart-line-fill"></i> Gráficas
+                    </a>
+                    <a asp-controller="SoporteTecnico" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-earmark-text"></i> Informes
                     </a>
                 }
                 else if (rol == 3)

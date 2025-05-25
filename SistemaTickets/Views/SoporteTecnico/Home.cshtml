@@ -13,19 +13,6 @@
                 </div>
             </a>
         </div>
-
-        <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">GESTION TICKETS</div>
-                <div class="card-text">Gestión de tickets</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">ASIGNACIONES</div>
-                <div class="card-text">Asignaciones</div>
-            </div>
-        </div>
         <div class="col-md-4">
             <div class="card-option">
                 <div class="card-title">VER MIS ASIGNACIONES</div>
@@ -45,16 +32,20 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">GRAFICAS</div>
-                <div class="card-text">Cierre de ticket</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="Index" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">GRAFICAS</div>
+                    <div class="card-text">Visualización de gráficas</div>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">INFORMES</div>
-                <div class="card-text">Cierre de ticket</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="Index" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">INFORMES</div>
+                    <div class="card-text">Visualización de informes</div>
+                </div>
+            </a>
         </div>
     </div>
 </div>

@@ -51,9 +51,20 @@ namespace SistemaTickets.Controllers
         //    return View();
         //}
 
+
         // GET: Tickets/Create
         public IActionResult Create()
         {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null) return RedirectToAction("Login", "Login");
+
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.UserId == userId);
+            if (usuario == null) return RedirectToAction("Login", "Login");
+
+            ViewBag.Nombre = usuario.Nombre;
+            ViewBag.Telefono = usuario.Telefono;
+            ViewBag.Email = usuario.Email;
+
             ViewBag.Categorias = new SelectList(_context.Categorias.ToList(), "CategoriaId", "Nombre");
             return View();
         }
@@ -61,59 +72,62 @@ namespace SistemaTickets.Controllers
         // POST: Tickets/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("TicketId,UserId,CategoriaId,NombreAplicacion,Descripcion,Prioridad,Estado,FechaCreacion")] Tickets tickets,
-            IFormFile[] Archivos,
-            string NombreUsuario,
-            string TelefonoUsuario,
-            string EmailUsuario,
-            string Comentario)
+        public async Task<IActionResult> Create(Tickets tickets, List<IFormFile> Archivos)
         {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null) return RedirectToAction("Login", "Login");
+
             if (ModelState.IsValid)
             {
-                _context.Add(tickets);
-                await _context.SaveChangesAsync();
+                tickets.UserId = userId.Value;
+                tickets.FechaCreacion = DateTime.Now;
+                tickets.Estado = "Abierto";
 
-                // Guardar archivos si existen
-                if (Archivos != null && Archivos.Length > 0)
+                _context.Add(tickets);
+                await _context.SaveChangesAsync(); // Genera el TicketId
+
+                if (Archivos != null && Archivos.Count > 0)
                 {
-                    string rutaArchivos = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "archivos");
-                    if (!Directory.Exists(rutaArchivos))
-                        Directory.CreateDirectory(rutaArchivos);
+                    var carpetaDestino = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ArchivosTickets");
+                    if (!Directory.Exists(carpetaDestino)) Directory.CreateDirectory(carpetaDestino);
 
                     foreach (var archivo in Archivos)
                     {
                         if (archivo.Length > 0)
                         {
-                            var nombreArchivo = Path.GetFileName(archivo.FileName);
-                            var rutaCompleta = Path.Combine(rutaArchivos, nombreArchivo);
+                            var nombreOriginal = Path.GetFileName(archivo.FileName);
+                            var nombreUnico = $"{Guid.NewGuid()}_{nombreOriginal}";
+                            var rutaCompleta = Path.Combine(carpetaDestino, nombreUnico);
 
                             using (var stream = new FileStream(rutaCompleta, FileMode.Create))
                             {
                                 await archivo.CopyToAsync(stream);
                             }
 
-                            var archivoAdjunto = new ArchivosAdjuntos
+                            _context.ArchivosAdjuntos.Add(new ArchivosAdjuntos
                             {
                                 TicketId = tickets.TicketId,
-                                NombreArchivo = nombreArchivo,
-                                RutaArchivo = "/archivos/" + nombreArchivo
-                            };
-
-                            _context.ArchivosAdjuntos.Add(archivoAdjunto);
+                                NombreArchivo = nombreOriginal,
+                                RutaArchivo = $"/ArchivosTickets/{nombreUnico}",
+                                FechaSubida = DateTime.Now
+                            });
                         }
                     }
 
                     await _context.SaveChangesAsync();
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
 
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.UserId == userId);
+            ViewBag.Nombre = usuario?.Nombre;
+            ViewBag.Telefono = usuario?.Telefono;
+            ViewBag.Email = usuario?.Email;
             ViewBag.Categorias = new SelectList(_context.Categorias.ToList(), "CategoriaId", "Nombre", tickets.CategoriaId);
+
             return View(tickets);
         }
-
 
 
         // GET: Tickets/Edit/5
