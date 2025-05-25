@@ -22,5 +22,7 @@ namespace SistemaTickets.Models
         public string Estado { get; set; } = "Abierto";
 
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        public DateTime? FechaResolucion { get; set; } 
     }
 }
