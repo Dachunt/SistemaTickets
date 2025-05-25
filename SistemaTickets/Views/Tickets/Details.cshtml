@@ -1,60 +1,110 @@
-﻿@model SistemaTickets.Models.Tickets
-
-@{
-    ViewData["Title"] = "Details";
+﻿@{
+    ViewBag.Title = "Tickets";
+    var tickets = ViewBag.Tickets as IEnumerable<dynamic>;
 }
 
-<h1>Details</h1>
+<style>
+    .btn-primary-custom {
+        background-color: #4c38d5;
+        border-color: #4c38d5;
+    }
 
-<div>
-    <h4>Tickets</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoriaId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoriaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NombreAplicacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NombreAplicacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Prioridad)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Prioridad)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estado)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.TicketId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .modal-header {
+        background-color: #4c38d5;
+        color: white;
+    }
+
+    .table thead {
+        background-color: #4c38d5;
+        color: white;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+
+<h2 class="text-center my-4" style="color:#4c38d5;">Listado de Tickets</h2>
+
+<div class="container">
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Categoría</th>
+                <th>Aplicación</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in tickets)
+            {
+                var modalId = $"modalDetalle_{ticket.TicketId}";
+                <tr>
+                    <td>@ticket.TicketId</td>
+                    <td>@ticket.Usuario</td>
+                    <td>@ticket.Categoria</td>
+                    <td>@ticket.NombreAplicacion</td>
+                    <td>@ticket.Prioridad</td>
+                    <td>@ticket.Estado</td>
+                    <td>@ticket.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#@modalId">
+                            Detalle
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal Detalle -->
+                <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="label_@modalId" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="label_@modalId">Detalle del Ticket #@ticket.TicketId</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Usuario:</strong> @ticket.Usuario</p>
+                                <p><strong>Categoría:</strong> @ticket.Categoria</p>
+                                <p><strong>Aplicación:</strong> @ticket.NombreAplicacion</p>
+                                <p><strong>Prioridad:</strong> @ticket.Prioridad</p>
+                                <p><strong>Estado:</strong> @ticket.Estado</p>
+                                <p><strong>Fecha:</strong> @ticket.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                                <hr />
+                                <p><strong>Descripción:</strong></p>
+                                <p>@ticket.Descripcion</p>
+
+                                <hr />
+                                <p><strong>Archivos Adjuntos:</strong></p>
+                                @if (ticket.Archivos != null && ticket.Archivos.Count > 0)
+                                {
+                                    <ul>
+                                        @foreach (var archivo in ticket.Archivos)
+                                        {
+                                            <li>
+                                                <a href="@archivo.RutaArchivo" target="_blank" download class="text-decoration-none text-primary">
+                                                    📎 @archivo.NombreArchivo
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No hay archivos adjuntos.</p>
+                                }
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </tbody>
+    </table>
 </div>

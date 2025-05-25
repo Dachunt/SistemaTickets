@@ -33,14 +33,18 @@ namespace SistemaTickets.Controllers
                 return NotFound();
             }
 
-            var tickets = await _context.Tickets
-                .FirstOrDefaultAsync(m => m.TicketId == id);
-            if (tickets == null)
+            var ticket = await _context.Tickets
+                .Include(t => t.CategoriaId)
+                .Include(t => t.UserId)
+                .Include(t => t.)
+                .FirstOrDefaultAsync(t => t.TicketId == id);
+
+            if (ticket == null)
             {
                 return NotFound();
             }
 
-            return View(tickets);
+            return View(ticket);
         }
 
         // GET: Tickets/Create
