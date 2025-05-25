@@ -26,7 +26,7 @@ namespace SistemaTickets.Controllers
         }
 
         // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
+      /*public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -45,7 +45,7 @@ namespace SistemaTickets.Controllers
             }
 
             return View(ticket);
-        }
+        }*/
 
         // GET: Tickets/Create
         //public IActionResult Create()
