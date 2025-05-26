@@ -1,0 +1,66 @@
+﻿@model List<SistemaTickets.Models.Tickets>
+
+@{
+    ViewData["Title"] = "Tickets por Rango de Fechas";
+}
+
+<div class="container mt-4 p-4 shadow rounded bg-white">
+    <div class="text-center mb-4">
+        <h2 class="text-primary fw-bold">Tickets por Rango de Fechas</h2>
+        <p class="text-muted">
+            Desde <strong>@ViewBag.FechaInicio.ToShortDateString()</strong> hasta <strong>@ViewBag.FechaFin.ToShortDateString()</strong>
+        </p>
+    </div>
+
+    <form asp-action="TicketsPorRango" method="get" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+            <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required value="@ViewBag.FechaInicio?.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="col-md-5">
+            <label for="fechaFin" class="form-label">Fecha de fin</label>
+            <input type="date" class="form-control" id="fechaFin" name="fechaFin" required value="@ViewBag.FechaFin?.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>Categoría</th>
+                    <th>Usuario</th>
+                    <th>Fecha de Creación</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TicketId</td>
+                        <td>@item.CategoriaId</td>
+                        <td>@item.UserId</td>
+                        <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge bg-@(item.Estado == "Resuelto" ? "success" : item.Estado == "Pendiente" ? "warning" : "secondary")">
+                                @item.Estado
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="@Url.Action("DescargarPdfRango", new { fechaInicio = ViewBag.FechaInicio.ToString("yyyy-MM-dd"), fechaFin = ViewBag.FechaFin.ToString("yyyy-MM-dd") })" class="btn btn-outline-primary" target="_blank">
+            Descargar PDF
+        </a>
+
+    </div>
+</div>

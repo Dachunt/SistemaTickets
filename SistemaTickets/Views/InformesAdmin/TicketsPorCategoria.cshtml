@@ -1,0 +1,33 @@
+﻿@model List<TicketsPorCategoriaViewModel>
+
+<div class="container mt-5 p-4 rounded shadow" style="background-color: #f9f9ff;">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold" style="color: #6a5acd;">TICKETS POR CATEGORÍA</h2>
+        <p class="text-muted">Resumen agrupado de tickets según categoría</p>
+    </div>
+
+    <a class="btn btn-outline-primary mb-4" href="@Url.Action("DescargarPdf")" target="_blank">
+        Descargar PDF
+    </a>
+
+
+    <table class="table table-hover table-bordered text-center">
+        <thead class="table-light">
+            <tr style="background-color: #e6e6fa;">
+                <th>Categoría ID</th>
+                <th>Nombre de la Categoría</th>
+                <th>Cantidad de Tickets</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CategoriaId</td>
+                    <td>@item.NombreCategoria</td>
+                    <td><span class="badge bg-primary fs-6">@item.Cantidad</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

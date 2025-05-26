@@ -1,0 +1,38 @@
+﻿@model List<InformeTiempoResolucionCategoria>
+
+@{
+    ViewData["Title"] = "Promedio Tiempo de Resolución por Categoría";
+}
+
+<div class="container mt-4 p-4 shadow rounded bg-white">
+    <div class="text-center mb-4">
+        <h2 class="text-primary fw-bold">Promedio de Resolución por Categoría</h2>
+        <p class="text-muted">Horas promedio que toma resolver los tickets por categoría</p>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Categoría ID</th>
+                    <th>Promedio de Resolución (Horas)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.CategoriaId</td>
+                        <td>@item.PromedioHoras:F2</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="@Url.Action("DescargarPdfPromedioResolucion")" class="btn btn-outline-primary" target="_blank">
+            Descargar PDF
+        </a>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+﻿@model List<SistemaTickets.Models.TicketsPersonalizadoViewModel>
+@{
+    ViewData["Title"] = "Reporte Personalizado";
+}
+
+<h2 class="mb-4">Reporte Personalizado</h2>
+
+<form asp-action="GenerarReportePersonalizado" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Usuario</label>
+            <input type="number" name="userId" value="@ViewBag.UserId" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Categoría</label>
+            <input type="number" name="categoriaId" value="@ViewBag.CategoriaId" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Fecha Inicio</label>
+            <input type="date" name="fechaInicio" value="@(ViewBag.FechaInicio?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Fecha Fin</label>
+            <input type="date" name="fechaFin" value="@(ViewBag.FechaFin?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="DescargarReportePersonalizadoPdf"
+           asp-route-userId="@ViewBag.UserId"
+           asp-route-categoriaId="@ViewBag.CategoriaId"
+           asp-route-fechaInicio="@ViewBag.FechaInicio?.ToString("yyyy-MM-dd")"
+           asp-route-fechaFin="@ViewBag.FechaFin?.ToString("yyyy-MM-dd")"
+           class="btn btn-danger">
+            Descargar PDF
+        </a>
+
+    </div>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>ID Ticket</th>
+                <th>Usuario</th>
+                <th>Categoría</th>
+                <th>Fecha de Creación</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model)
+            {
+                <tr>
+                    <td>@ticket.TicketId</td>
+                    <td>@ticket.UsuarioNombre</td>
+                    <td>@ticket.CategoriaNombre</td>
+                    <td>@ticket.FechaCreacion.ToString("yyyy-MM-dd")</td>
+                    <td>@ticket.Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="mt-4 text-muted">No se encontraron tickets con los filtros aplicados.</p>
+}
