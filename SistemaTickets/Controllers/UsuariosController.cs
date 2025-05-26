@@ -221,6 +221,14 @@ namespace SistemaTickets.Controllers
                 return RedirectToAction("Index");
             }
 
+            var tieneTicket = await _context.Tickets
+                .FirstOrDefaultAsync(t => t.UserId == id);
+            if (tieneTicket != null)
+            {
+                TempData["Error"] = "El usuario tiene tickets asociados. No se puede desactivar.";
+                return RedirectToAction("Index");
+            }
+
             if (usuario.UsuarioEmpresa == null || usuario.UsuarioEmpresa.Count == 0)
             {
                 usuario.Estado = false;
