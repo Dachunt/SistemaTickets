@@ -233,5 +233,37 @@ namespace SistemaTickets.Controllers
         {
             return _context.Tickets.Any(e => e.TicketId == id);
         }
+
+          public async Task<IActionResult> TicketsAsignados(string nombreTecnico, DateTime? fechaInicio, DateTime? fechaFin)
+          {
+              var query = _context.Asignaciones
+                  .Include(a => a.Ticket)
+                  .Include(a => a.Tecnico)
+                  .Where(a => a.EstadoAsignacion == "Asignado" && (a.Tecnico.RolId == 1 || a.Tecnico.RolId == 2))
+                  .AsQueryable();
+
+              if (!string.IsNullOrEmpty(nombreTecnico))
+              {
+                  query = query.Where(a => a.Tecnico.Nombre.Contains(nombreTecnico));
+              }
+
+              if (fechaInicio.HasValue)
+              {
+                  query = query.Where(a => a.Ticket.FechaCreacion >= fechaInicio.Value);
+              }
+
+              if (fechaFin.HasValue)
+              {
+                  query = query.Where(a => a.Ticket.FechaCreacion <= fechaFin.Value);
+              }
+
+              var asignaciones = await query.ToListAsync();
+
+              return View(asignaciones);
+          }
+
+
+       
+
     }
 }

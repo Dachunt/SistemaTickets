@@ -1,0 +1,52 @@
+﻿@model IEnumerable<SistemaTickets.Models.Asignaciones>
+
+<h2>Tickets Asignados</h2>
+
+<form method="get" asp-action="TicketsAsignados" class="mb-3">
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label>Nombre del Técnico</label>
+            <input type="text" name="nombreTecnico" class="form-control" value="@Context.Request.Query["nombreTecnico"]" />
+        </div>
+        <div class="form-group col-md-3">
+            <label>Fecha Inicio</label>
+            <input type="date" name="fechaInicio" class="form-control" value="@Context.Request.Query["fechaInicio"]" />
+        </div>
+        <div class="form-group col-md-3">
+            <label>Fecha Fin</label>
+            <input type="date" name="fechaFin" class="form-control" value="@Context.Request.Query["fechaFin"]" />
+        </div>
+        <div class="form-group col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </div>
+</form>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Aplicación</th>
+            <th>Descripción</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Fecha de creación</th>
+            <th>Técnico asignado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var asignacion in Model)
+        {
+            <tr>
+                <td>@asignacion.Ticket.TicketId</td>
+                <td>@asignacion.Ticket.NombreAplicacion</td>
+                <td>@asignacion.Ticket.Descripcion</td>
+                <td>@asignacion.Ticket.Prioridad</td>
+                <td>@asignacion.Ticket.Estado</td>
+                <td>@asignacion.Ticket.FechaCreacion.ToShortDateString()</td>
+                <td>@asignacion.Tecnico.Nombre</td>
+            </tr>
+        }
+    </tbody>
+</table>
