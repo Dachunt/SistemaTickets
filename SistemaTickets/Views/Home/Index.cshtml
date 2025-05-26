@@ -24,12 +24,7 @@
             </a>
         </div>
 
-        <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">GESTION TICKETS</div>
-                <div class="card-text">Gestión de tickets</div>
-            </div>
-        </div>
+        
         <div class="col-md-4">
             <a href="@Url.Action("Index", "Asignaciones")" style="text-decoration: none; color: inherit;">
                 <div class="card-option">
@@ -38,18 +33,13 @@
                 </div>
             </a>
         </div>
-
         <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">VER MIS ASIGNACIONES</div>
-                <div class="card-text">Mis asignaciones</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">HISTORIAL</div>
-                <div class="card-text">Historial</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="MisAsignaciones" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">VER MIS ASIGNACIONES</div>
+                    <div class="card-text">Mis asignaciones</div>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
             <div class="card-option">

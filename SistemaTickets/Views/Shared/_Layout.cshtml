@@ -54,11 +54,14 @@
                     <a asp-controller="Usuarios" asp-action="Index" class="list-group-item list-group-item-action">
                         <i class="bi bi-people-fill"></i> Usuarios
                     </a>
-                    <a asp-controller="Categoria" asp-action="Index" class="list-group-item list-group-item-action">
-                        <i class="bi bi-tags-fill"></i> Categorías
+                    <a asp-controller="Asignaciones" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people-fill"></i> Asignaciones
                     </a>
-                    <a asp-controller="Reporte" asp-action="Index" class="list-group-item list-group-item-action">
-                        <i class="bi bi-graph-up-arrow"></i> Reportes
+                    <a asp-controller="Categoria" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="bi bi-tags-fill"></i> Ver los tickets que ya esten asignados(FALTA ESTO)
+                    </a>
+                    <a asp-controller="InformesAdmin" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="bi bi-graph-up-arrow"></i> Informes
                     </a>
                 }
                 else if (nombreRol == "Tecnico")

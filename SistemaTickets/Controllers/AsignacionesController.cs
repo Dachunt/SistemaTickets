@@ -94,25 +94,53 @@ namespace SistemaTickets.Controllers
             TempData["Success"] = "El ticket fue asignado correctamente.";
             return RedirectToAction(nameof(Index));
         }
-        // GET: Asignaciones/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Descripcion,
+                                    t.Prioridad,
+                                    t.Estado,
+                                    t.FechaCreacion,
+                                    t.FechaResolucion,
+                                    UsuarioNombre = u.Nombre,
+                                    UsuarioEmail = u.Email,
+                                    CategoriaNombre = c.Nombre
+                                }).FirstOrDefaultAsync();
 
-            var asignaciones = await _context.Asignaciones
-                .FirstOrDefaultAsync(m => m.AsignacionId == id);
-            if (asignaciones == null)
-            {
+            if (ticket == null)
                 return NotFound();
-            }
 
-            return View(asignaciones);
+            var archivos = await _context.ArchivosAdjuntos
+                .Where(a => a.TicketId == id)
+                .ToListAsync();
+
+            var comentarios = await (from com in _context.Comentarios
+                                     join u in _context.Usuarios on com.AutorId equals u.UserId
+                                     where com.TicketId == id
+                                     orderby com.FechaComentario descending
+                                     select new
+                                     {
+                                         com.ComentarioId,
+                                         com.Comentario,
+                                         com.FechaComentario,
+                                         Autor = u.Nombre
+                                     }).ToListAsync();
+
+            ViewBag.Ticket = ticket;
+            ViewBag.Archivos = archivos;
+            ViewBag.Comentarios = comentarios;
+
+            return View();
         }
 
-        //GET: Asignaciones/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
