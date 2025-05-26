@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
+using SistemaTickets.Atributos;
 using SistemaTickets.Models;
 using System.Security.Claims;
 
@@ -275,6 +276,15 @@ namespace SistemaTickets.Controllers
             });
 
             await _context.SaveChangesAsync();
+
+            var (correo, nombre) = await ObtenerCorreoYNombreUsuario(ticket.UserId); // Ajusta si usas otro campo
+
+            if (!string.IsNullOrEmpty(correo))
+            {
+                var emailService = new EmailService();
+                emailService.EnviarCorreoCambioEstado(correo, nombre, ticketId, estadoAnterior, nuevoEstado);
+            }
+
             return RedirectToAction("MisAsignaciones");
         }
 
@@ -824,6 +834,14 @@ namespace SistemaTickets.Controllers
         }
 
 
+        public async Task<(string Correo, string Nombre)> ObtenerCorreoYNombreUsuario(int userId)
+        {
+            var usuario = await _context.Usuarios
+                .Where(u => u.UserId == userId)
+                .Select(u => new { u.Email, u.Nombre })
+                .FirstOrDefaultAsync();
 
+            return usuario == null ? (null, null) : (usuario.Email, usuario.Nombre);
+        }
     }
 }
