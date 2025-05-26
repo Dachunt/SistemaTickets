@@ -219,10 +219,9 @@ namespace SistemaTickets.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Home", "MisAsignaciones", new { id = ticketId });
+            return RedirectToAction("MisAsignaciones", "SoporteTecnico", new { id = ticketId });
 
         }
-
 
 
         public async Task<IActionResult> ActualizarEstado(int id)

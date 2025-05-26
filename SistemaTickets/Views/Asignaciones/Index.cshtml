@@ -1,0 +1,110 @@
+﻿@model List<SistemaTickets.Models.TicketAsignacionViewModel>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="/css/asignaciones.css" />
+<link rel="stylesheet" href="/css/usuarios.css" />
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-blue">Tickets Abiertos</h3>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-sm btn-asignar">
+        <i class="bi bi-arrow-left"></i> volver
+    </a>
+
+
+</div>
+
+<table class="table align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Ticket</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Estado</th>
+            <th>Asignar Técnico</th>
+            <th>Acciones </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            var estadoClass = ticket.Estado switch
+            {
+                "Abierto" => "status-abierto",
+                "En Proceso" => "status-enproceso",
+                "Cerrado" => "status-cerrado",
+                _ => "status-abierto"
+            };
+
+            <tr>
+                <td>@ticket.TicketId</td>
+                <td>@ticket.Descripcion</td>
+                <td>@ticket.Categoria</td>
+                <td>
+                    <span class="status-badge @estadoClass">@ticket.Estado</span>
+                </td>
+                <td>
+
+                    <form asp-action="Asignar" method="post" class="d-flex gap-2 align-items-center">
+                        <input type="hidden" name="TicketId" value="@ticket.TicketId" />
+                        <select name="TecnicoId" required class="form-select form-select-sm w-auto">
+                            <option value="">-- Seleccione --</option>
+                            @foreach (var tecnico in ticket.TecnicosDisponibles)
+                            {
+                                if(tecnico.Estado == true){
+                                    <option value="@tecnico.UserId">@tecnico.Nombre</option>
+
+                                }
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm btn-asignar">
+                            <i class="bi bi-check-circle"></i> Asignar
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@ticket.TicketId" class="btn btn-sm btn-secondary rounded-circle me-2" title="Detalles">
+                        <i class="bi bi-eye-fill"></i>
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@ticket.TicketId" class="btn btn-sm btn-secondary" title="Edit">
+                        <i class="fas fa-edit"></i>Editar prioridad
+                    </a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Éxito!',
+                                        text: '@TempData["Success"]',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+            </text>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: '@TempData["Error"]',
+                                        confirmButtonColor: '#d33',
+                                        confirmButtonText: 'OK'
+                                    });
+            </text>
+        }
+    </script>
+}
