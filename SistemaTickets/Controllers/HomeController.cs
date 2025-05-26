@@ -17,7 +17,9 @@ namespace SistemaTickets.Controllers;
 
         public IActionResult Index()
         {
-            return View();
+            ViewBag.MensajeExito = TempData["MensajeExitoAdmin"] as string;
+
+        return View();
         }
 
         public IActionResult Privacy()

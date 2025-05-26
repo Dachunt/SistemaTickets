@@ -1,5 +1,5 @@
 ﻿@{
-    var rol = Context.Session.GetInt32("rol");
+    var nombreRol = Context.Session.GetString("rol_nombre");
 }
 
 <!DOCTYPE html>
@@ -45,7 +45,7 @@
         <div id="sidebar-wrapper">
             <div class="list-group list-group-flush">
 
-                @if (rol == 1)
+                @if (nombreRol == "Administrador")
                 {
                     <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
                         <i class="bi bi-houses-fill"></i> Inicio
@@ -60,7 +60,7 @@
                         <i class="bi bi-graph-up-arrow"></i> Reportes
                     </a>
                 }
-                else if (rol == 2)
+                else if (nombreRol == "Tecnico")
                 {
                     <a asp-controller="SoporteTecnico" asp-action="Home" class="list-group-item list-group-item-action">
                         <i class="bi bi-houses-fill"></i> Inicio
@@ -82,12 +82,12 @@
                         <i class="bi bi-file-earmark-text"></i> Informes
                     </a>
                 }
-                else if (rol == 3)
+                else if (nombreRol == "Externo")
                 {
-                    <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
+                    <a asp-controller="Usuarios" asp-action="HomeExterno" class="list-group-item list-group-item-action">
                         <i class="bi bi-houses-fill"></i> Inicio
                     </a>
-                    <a asp-controller="Ticket" asp-action="Crear" class="list-group-item list-group-item-action">
+                    <a asp-controller="Tickets" asp-action="Create" class="list-group-item list-group-item-action">
                         <i class="bi bi-plus-square-fill"></i> Crear Ticket
                     </a>
                 }
