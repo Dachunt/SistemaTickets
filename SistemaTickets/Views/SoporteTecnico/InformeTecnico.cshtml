@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "Mis Asignaciones";
+    var asignaciones = ViewBag.Asignaciones as IEnumerable<dynamic>;
+    var nombres = ViewBag.NombresDisponibles as List<string>;
+    string nombreFiltro = ViewBag.NombreFiltro;
+    string prioridadFiltro = ViewBag.PrioridadFiltro;
+    string fechaFiltro = ViewBag.FechaFiltro;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-blue fw-bold">Mis Asignaciones</h2>
+</div>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <select name="nombre" class="form-select rounded-pill">
+            <option value="">Todas las aplicaciones</option>
+            @foreach (var n in nombres)
+            {
+                <option value="@n" selected="@(nombreFiltro == n ? "selected" : null)">@n</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="Prioridad" class="form-select rounded-pill">
+            <option value="">Seleccione una prioridad</option>
+            <option value="Crítico" selected="@(prioridadFiltro == "Crítico" ? "selected" : null)">Crítico</option>
+            <option value="Importante" selected="@(prioridadFiltro == "Importante" ? "selected" : null)">Importante</option>
+            <option value="Baja" selected="@(prioridadFiltro == "Baja" ? "selected" : null)">Baja</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="fecha" value="@fechaFiltro" class="form-control rounded-pill" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+            <i class="bi bi-search"></i> Filtrar
+        </button>
+    </div>
+</form>
+
+<!-- Tabla -->
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead class="table-light">
+            <tr>
+                <th># Ticket</th>
+                <th>Aplicación</th>
+                <th>Categoría</th>
+                <th>Usuario</th>
+                <th>Prioridad</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Mis Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (asignaciones != null && asignaciones.Any())
+            {
+                foreach (var a in asignaciones)
+                {
+                    string estadoClass = "status-" + a.Estado.Replace(" ", "-").ToLower();
+
+                    <tr>
+                        <td>#@a.TicketId</td>
+                        <td>@a.NombreAplicacion</td>
+                        <td>@a.Categoria</td>
+                        <td>@a.UsuarioNombre</td>
+                        <td>@a.Prioridad</td>
+                        <td>@a.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td><span class="status-badge @estadoClass">@a.Estado</span></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="@Url.Action("GenerarInformeTicket", "SoporteTecnico", new { id = a.TicketId })" class="btn btn-outline-primary btn-sm" title="Ver Proceso">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No hay asignaciones encontradas.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

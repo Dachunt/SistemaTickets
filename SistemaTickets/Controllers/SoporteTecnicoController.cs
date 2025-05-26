@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
 using SistemaTickets.Models;
 using System.Security.Claims;
 
@@ -417,6 +418,176 @@ namespace SistemaTickets.Controllers
 
             return View();
         }
+
+        public async Task<IActionResult> InformeTecnico(string nombre, string prioridad, DateTime? fecha)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var query = from a in _context.Asignaciones
+                        join t in _context.Tickets on a.TicketId equals t.TicketId
+                        join u in _context.Usuarios on t.UserId equals u.UserId
+                        join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                        where a.TecnicoId == userId
+                        select new
+                        {
+                            a.AsignacionId,
+                            t.TicketId,
+                            t.NombreAplicacion,
+                            t.Estado,
+                            t.Prioridad,
+                            t.FechaCreacion,
+                            t.FechaResolucion,
+                            UsuarioNombre = u.Nombre,
+                            Categoria = c.Nombre
+                        };
+
+            if (!string.IsNullOrEmpty(nombre))
+                query = query.Where(x => x.NombreAplicacion == nombre);
+
+            if (!string.IsNullOrEmpty(prioridad))
+                query = query.Where(x => x.Prioridad == prioridad);
+
+            if (fecha.HasValue)
+                query = query.Where(x => x.FechaCreacion.Date == fecha.Value.Date);
+
+            var asignaciones = await query.ToListAsync();
+
+            ViewBag.Asignaciones = asignaciones;
+
+            // Filtros disponibles
+            ViewBag.NombresDisponibles = await _context.Tickets
+                .Where(t => _context.Asignaciones.Any(a => a.TicketId == t.TicketId && a.TecnicoId == userId))
+                .Select(t => t.NombreAplicacion)
+                .Distinct()
+                .ToListAsync();
+
+            ViewBag.NombreFiltro = nombre;
+            ViewBag.PrioridadFiltro = prioridad;
+            ViewBag.FechaFiltro = fecha?.ToString("yyyy-MM-dd");
+
+            return View();
+        }
+
+
+        public async Task<IActionResult> GenerarInformeTicket(int id)
+        {
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Descripcion,
+                                    t.Prioridad,
+                                    t.Estado,
+                                    t.FechaCreacion,
+                                    t.FechaResolucion,
+                                    Usuario = u.Nombre,
+                                    UsuarioEmail = u.Email,
+                                    Categoria = c.Nombre
+                                }).FirstOrDefaultAsync();
+
+            if (ticket == null)
+                return NotFound();
+
+            var archivos = await _context.ArchivosAdjuntos
+                .Where(a => a.TicketId == id)
+                .Select(a => a.NombreArchivo)
+                .ToListAsync();
+
+            var comentarios = await (from com in _context.Comentarios
+                                     join u in _context.Usuarios on com.AutorId equals u.UserId
+                                     where com.TicketId == id
+                                     orderby com.FechaComentario
+                                     select new
+                                     {
+                                         com.Comentario,
+                                         com.FechaComentario,
+                                         Autor = u.Nombre
+                                     }).ToListAsync();
+
+            var historial = await (from h in _context.HistorialEstados
+                                   join u in _context.Usuarios on h.CambiadoPor equals u.UserId
+                                   where h.TicketId == id
+                                   orderby h.FechaCambio
+                                   select new
+                                   {
+                                       h.EstadoAnterior,
+                                       h.EstadoNuevo,
+                                       h.FechaCambio,
+                                       Tecnico = u.Nombre
+                                   }).ToListAsync();
+
+            
+            var pdfBytes = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+                    page.Header().Text($"Informe de Ticket #{ticket.TicketId}").FontSize(20).Bold();
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Text($"Aplicación: {ticket.NombreAplicacion}");
+                        col.Item().Text($"Descripción: {ticket.Descripcion}");
+                        col.Item().Text($"Prioridad: {ticket.Prioridad}");
+                        col.Item().Text($"Estado: {ticket.Estado}");
+                        col.Item().Text($"Fecha de Creación: {ticket.FechaCreacion:dd/MM/yyyy}");
+                        col.Item().Text($"Fecha de Resolución: {(ticket.FechaResolucion != null ? ticket.FechaResolucion.Value.ToString("dd/MM/yyyy") : "Pendiente")}");
+                        col.Item().Text($"Usuario: {ticket.Usuario} ({ticket.UsuarioEmail})");
+                        col.Item().Text($"Categoría: {ticket.Categoria}");
+
+                        col.Item().PaddingVertical(10).Text("Archivos Adjuntos:").Bold();
+                        if (archivos.Any())
+                        {
+                            foreach (var archivo in archivos)
+                                col.Item().Text($"- {archivo}");
+                        }
+                        else
+                        {
+                            col.Item().Text("No hay archivos adjuntos.");
+                        }
+
+                        col.Item().PaddingVertical(10).Text("Comentarios:").Bold();
+                        if (comentarios.Any())
+                        {
+                            foreach (var c in comentarios)
+                                col.Item().Text($"{c.FechaComentario:dd/MM/yyyy HH:mm} - {c.Autor}: {c.Comentario}");
+                        }
+                        else
+                        {
+                            col.Item().Text("No hay comentarios.");
+                        }
+
+                        col.Item().PaddingVertical(10).Text("Historial de Estados:").Bold();
+                        if (historial.Any())
+                        {
+                            foreach (var h in historial)
+                                col.Item().Text($"{h.FechaCambio:dd/MM/yyyy HH:mm} - {h.Tecnico}: {h.EstadoAnterior} → {h.EstadoNuevo}");
+                        }
+                        else
+                        {
+                            col.Item().Text("No hay historial de estados.");
+                        }
+                    });
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Generado por Sistema de Tickets - ");
+                        x.CurrentPageNumber();
+                        x.Span(" / ");
+                        x.TotalPages();
+                    });
+                });
+            }).GeneratePdf();
+
+            return File(pdfBytes, "application/pdf", $"Ticket_{ticket.TicketId}_Informe.pdf");
+        }
+
 
     }
 }

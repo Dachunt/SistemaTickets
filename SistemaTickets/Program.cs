@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaTickets.Models;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddDbContext<SistemaTicketsContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SistemaTicketsDbConnection"))
 );
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
