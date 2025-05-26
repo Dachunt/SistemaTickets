@@ -1,0 +1,20 @@
+﻿@model List<TicketsPorCategoriaViewModel>
+
+<h2>Tickets por Categoría</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Categoría ID</th>
+            <th>Cantidad de Tickets</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CategoriaId</td>
+                <td>@item.Cantidad</td>
+            </tr>
+        }
+    </tbody>
+</table>

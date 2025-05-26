@@ -1,0 +1,23 @@
+﻿@model List<InformeTiempoResolucionCategoria>
+
+@{
+    ViewData["Title"] = "Promedio Tiempo de Resolución por Categoría";
+}
+<h3>Promedio de Tiempo de Resolución por Categoría</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Categoría ID</th>
+            <th>Promedio de Resolución (Horas)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CategoriaId</td>
+                <td>@item.PromedioHoras:F2</td>
+            </tr>
+        }
+    </tbody>
+</table>

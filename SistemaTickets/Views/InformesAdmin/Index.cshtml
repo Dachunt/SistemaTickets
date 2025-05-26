@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Informes del Administrador";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Informes del Administrador</h2>
+
+    <div class="list-group">
+        <a href="@Url.Action("TicketsPorCategoria")" class="list-group-item list-group-item-action">Tickets por Categoría</a>
+        <a href="@Url.Action("TicketsPorRangoFechas")" class="list-group-item list-group-item-action">Tickets por Rango de Fechas</a>
+        <a href="@Url.Action("TicketsPorUsuario")" class="list-group-item list-group-item-action">Tickets por Usuario</a>
+        <a href="@Url.Action("TiempoResolucionPorCategoria")" class="list-group-item list-group-item-action">Promedio Tiempo de Resolución por Categoría</a>
+    </div>
+</div>

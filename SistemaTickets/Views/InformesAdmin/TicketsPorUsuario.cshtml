@@ -1,0 +1,20 @@
+﻿@model List<TicketsPorUsuarioViewModel>
+
+<h2>Tickets por Usuario</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Usuario ID</th>
+            <th>Cantidad de Tickets</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.UserId</td>
+                <td>@item.Cantidad</td>
+            </tr>
+        }
+    </tbody>
+</table>

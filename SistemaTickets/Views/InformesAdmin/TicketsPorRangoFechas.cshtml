@@ -1,0 +1,28 @@
+﻿@model List<SistemaTickets.Models.Tickets>
+@{
+    ViewData["Title"] = "Tickets por Rango de Fechas";
+}
+<h3>Tickets entre @ViewBag.FechaInicio.ToShortDateString() y @ViewBag.FechaFin.ToShortDateString()</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticket ID</th>
+            <th>Categoría</th>
+            <th>Usuario</th>
+            <th>Fecha Creación</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TicketId</td>
+                <td>@item.CategoriaId</td>
+                <td>@item.UserId</td>
+                <td>@item.FechaCreacion.ToString("g")</td>
+                <td>@item.Estado</td>
+            </tr>
+        }
+    </tbody>
+</table>
