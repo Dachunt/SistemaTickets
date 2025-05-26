@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SistemaTickets.Atributos;
 using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
@@ -52,10 +53,16 @@ namespace SistemaTickets.Controllers
             var rol = await _context.Roles.FindAsync(usuario.RolId);
             usuario.TieneEmpresa = rol != null && rol.NombreRol == "Externo";
 
+            string contraseñaTemporal = usuario.Contrasena;
+
             usuario.Contrasena = _hasher.HashPassword(usuario, usuario.Contrasena);
 
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
+
+            // Enviar correo
+            var emailService = new EmailService();
+            emailService.EnviarCorreoBienvenida(usuario.Email, contraseñaTemporal);
 
             if (usuario.TieneEmpresa)
             {
