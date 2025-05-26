@@ -93,11 +93,6 @@ namespace SistemaTickets.Controllers
             TempData["Success"] = "El ticket fue asignado correctamente.";
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
-
         // GET: Asignaciones/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -113,28 +108,6 @@ namespace SistemaTickets.Controllers
                 return NotFound();
             }
 
-            return View(asignaciones);
-        }
-
-        // GET: Asignaciones/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Asignaciones/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AsignacionId,TicketId,TecnicoId,FechaAsignacion,EstadoAsignacion")] Asignaciones asignaciones)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(asignaciones);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
             return View(asignaciones);
         }
 
@@ -187,39 +160,6 @@ namespace SistemaTickets.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(asignaciones);
-        }
-
-        // GET: Asignaciones/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var asignaciones = await _context.Asignaciones
-                .FirstOrDefaultAsync(m => m.AsignacionId == id);
-            if (asignaciones == null)
-            {
-                return NotFound();
-            }
-
-            return View(asignaciones);
-        }
-
-        // POST: Asignaciones/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var asignaciones = await _context.Asignaciones.FindAsync(id);
-            if (asignaciones != null)
-            {
-                _context.Asignaciones.Remove(asignaciones);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool AsignacionesExists(int id)
