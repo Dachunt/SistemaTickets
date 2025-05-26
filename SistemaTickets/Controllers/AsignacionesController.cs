@@ -119,12 +119,12 @@ namespace SistemaTickets.Controllers
                 return NotFound();
             }
 
-            var asignaciones = await _context.Asignaciones.FindAsync(id);
-            if (asignaciones == null)
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null)
             {
                 return NotFound();
             }
-            return View(asignaciones);
+            return View(ticket);
         }
 
         // POST: Asignaciones/Edit/5
