@@ -475,14 +475,14 @@ namespace SistemaTickets.Controllers
                 .Where(t => t.Estado == "Resuelto")
                 .ToListAsync();
 
-            var tiemposResolucion = await (
+            var tiemposResolucionHoras = await (
                 from h in _context.HistorialEstados
                 join t in _context.Tickets on h.TicketId equals t.TicketId
                 where h.EstadoNuevo == "Resuelto"
-                select EF.Functions.DateDiffDay(t.FechaCreacion, h.FechaCambio)
+                select EF.Functions.DateDiffHour(t.FechaCreacion, h.FechaCambio)
             ).ToListAsync();
 
-            double promedioDias = tiemposResolucion.Any() ? tiemposResolucion.Average() : 0;
+            double promedioHoras = tiemposResolucionHoras.Any() ? tiemposResolucionHoras.Average() : 0;
 
             var ticketsEnProceso = await (
                 from a in _context.Asignaciones
@@ -513,7 +513,7 @@ namespace SistemaTickets.Controllers
                 }
             ).ToListAsync();
 
-            ViewBag.TiempoPromedio = promedioDias;
+            ViewBag.TiempoPromedioHoras = promedioHoras;
             ViewBag.EnProceso = ticketsEnProceso;
             ViewBag.Resueltos = ticketsResueltos.Count;
             ViewBag.TicketsPorMes = ticketsPorMes;
@@ -521,6 +521,7 @@ namespace SistemaTickets.Controllers
 
             return View();
         }
+
 
         public async Task<IActionResult> InformeTecnico(string nombre, string prioridad, DateTime? fecha)
         {

@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Dashboard Soporte Técnico";
-    var tiempoPromedio = ViewBag.TiempoPromedio;
+    var tiempoPromedioHoras = ViewBag.TiempoPromedioHoras;
     var enProceso = ViewBag.EnProceso;
     var resueltos = ViewBag.Resueltos;
     var ticketsPorMes = ViewBag.TicketsPorMes;
@@ -14,7 +14,7 @@
         <div class="card text-center p-3">
             <i class="fas fa-clock fa-2x mb-2"></i>
             <h5>Tiempo Promedio de Resolución:</h5>
-            <p class="lead">@tiempoPromedio días</p>
+            <p class="lead">@Math.Round(tiempoPromedioHoras, 2) horas</p>
         </div>
     </div>
     <div class="col-md-4">
@@ -48,10 +48,10 @@
     <script>
         // Datos para gráfica de barras
         const barLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-                    ((IEnumerable<dynamic>)ticketsPorMes).Select(x => $"{x.Mes}/{x.Año}")
-            ));
+                                    ((IEnumerable<dynamic>)ticketsPorMes).Select(x => $"{x.Mes}/{x.Año}")
+                    ));
     const barData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-                ((IEnumerable<dynamic>)ticketsPorMes).Select(x => x.Cantidad)
+                        ((IEnumerable<dynamic>)ticketsPorMes).Select(x => x.Cantidad)
         ));
 
     const barChart = new Chart(document.getElementById('ticketsBarChart').getContext('2d'), {
@@ -77,10 +77,10 @@
 
         // Datos para gráfica de pastel
         const pieLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-                ((IEnumerable<dynamic>)categorias).Select(c => c.Categoria)
+                        ((IEnumerable<dynamic>)categorias).Select(c => c.Categoria)
         ));
     const pieData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-                ((IEnumerable<dynamic>)categorias).Select(c => c.Cantidad)
+                        ((IEnumerable<dynamic>)categorias).Select(c => c.Cantidad)
         ));
 
     const pieChart = new Chart(document.getElementById('categoriasPieChart').getContext('2d'), {
