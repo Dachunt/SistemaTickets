@@ -52,6 +52,14 @@ namespace SistemaTickets.Controllers
         public async Task<IActionResult> Create(Tickets tickets, List<IFormFile> Archivos)
         {
             var userId = HttpContext.Session.GetInt32("id_usuario");
+            var userRol = HttpContext.Session.GetInt32("rol");
+
+            var NombreRol = _context.Roles.FirstOrDefault(r => r.RolId == userRol);
+            if( NombreRol == null)
+            {
+                return RedirectToAction("Login", "Login");
+
+            }
             if (userId == null) return RedirectToAction("Login", "Login");
 
             if (ModelState.IsValid)
@@ -94,8 +102,23 @@ namespace SistemaTickets.Controllers
                     await _context.SaveChangesAsync();
 
                 }
-                TempData["MensajeExito"] = "El ticket fue creado exitosamente.";
-                return RedirectToAction("Home", "SoporteTecnico");
+                
+                if (NombreRol.NombreRol == "Administrador")
+                {
+                    TempData["MensajeExitoAdmin"] = "El ticket fue creado exitosamente.";
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (NombreRol.NombreRol == "Tecnico")
+                {
+                    TempData["MensajeExito"] = "El ticket fue creado exitosamente.";
+                    return RedirectToAction("Home", "SoporteTecnico");
+                }
+                else if(NombreRol.NombreRol == "Externo")
+                {
+                    TempData["MensajeExitoExterno"] = "El ticket fue creado exitosamente.";
+                    return RedirectToAction("HomeExterno", "Usuarios");
+                }
+               // return RedirectToAction("Home", "SoporteTecnico");
             }
 
             var usuario = _context.Usuarios.FirstOrDefault(u => u.UserId == userId);

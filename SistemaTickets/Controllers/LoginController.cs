@@ -65,6 +65,12 @@ namespace SistemaTickets.Controllers
                 HttpContext.Session.SetInt32("id_usuario", user.UserId);
                 HttpContext.Session.SetString("nombre", user.Nombre);
                 HttpContext.Session.SetInt32("rol", user.RolId);
+                var rol = _sistemaContext.Roles.FirstOrDefault(r => r.RolId == user.RolId);
+                if (rol == null)
+                {
+                    return View();
+                }
+                HttpContext.Session.SetString("rol_nombre", rol.NombreRol);
                 switch (user.RolId)
                 {
                     case 1:
@@ -72,7 +78,7 @@ namespace SistemaTickets.Controllers
                     case 2:
                         return RedirectToAction("Home", "SoporteTecnico");
                     default:
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("HomeExterno", "Usuarios");
                 }
                 
             }

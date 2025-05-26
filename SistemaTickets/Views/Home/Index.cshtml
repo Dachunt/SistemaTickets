@@ -1,5 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Home Page Admin";
+    var mensajeExito = ViewBag.MensajeExito as string;
+
+}
+@if (!string.IsNullOrEmpty(mensajeExito))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i>
+        @mensajeExito
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 <link href="~/css/Menu.css" rel="stylesheet" />
 

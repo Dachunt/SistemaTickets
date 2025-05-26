@@ -271,6 +271,7 @@ namespace SistemaTickets.Controllers
 
         public IActionResult HomeExterno()
         {
+            ViewBag.MensajeExito = TempData["MensajeExitoExterno"] as string;
             return View();
         }
 
