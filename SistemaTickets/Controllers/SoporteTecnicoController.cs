@@ -468,13 +468,13 @@ namespace SistemaTickets.Controllers
             return RedirectToAction("VerHistorial", new { id = ticketId });
         }
 
-
         public async Task<IActionResult> Index()
         {
             var ticketsResueltos = await _context.Tickets
                 .Where(t => t.Estado == "Resuelto")
                 .ToListAsync();
 
+            // Obtener la diferencia en horas entre FechaCreacion y FechaCambio (cuando se resolvió)
             var tiemposResolucionHoras = await (
                 from h in _context.HistorialEstados
                 join t in _context.Tickets on h.TicketId equals t.TicketId
@@ -482,6 +482,7 @@ namespace SistemaTickets.Controllers
                 select EF.Functions.DateDiffHour(t.FechaCreacion, h.FechaCambio)
             ).ToListAsync();
 
+            // Calcular promedio en horas
             double promedioHoras = tiemposResolucionHoras.Any() ? tiemposResolucionHoras.Average() : 0;
 
             var ticketsEnProceso = await (
