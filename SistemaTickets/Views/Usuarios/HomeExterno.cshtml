@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "Menú Usuario Externo";
+}
+<link href="~/css/Menu.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4">
+            <a asp-controller="Tickets" asp-action="Create" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">CREAR UN NUEVO TICKET</div>
+                    <div class="card-text">Presiona para crear un ticket nuevo</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <div class="card-option">
+                <div class="card-title">VER HISTORIAL DE MIS TICKETS CREADOS</div>
+                <div class="card-text">Mis asignaciones</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
