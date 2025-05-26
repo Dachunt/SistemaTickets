@@ -74,21 +74,33 @@
         </div>
     </div>
 
-    <!-- NUEVO: Gráfico Tiempos de Resolución -->
+    <!-- NUEVO: Gráficos por Categoría - Promedio Tiempo de Resolución por Usuario -->
     <div class="row mt-4">
-        <div class="col-md-12 mb-4">
-            <div class="card shadow">
-                <div class="card-header">Tiempos de Resolución (horas) por Ticket</div>
-                <div class="card-body">
-                    <canvas id="resolucionChart"></canvas>
+        <div class="col-12">
+            <h4 class="mb-3">Promedio de Tiempo de Resolución por Usuario y Categoría (últimos 30 días)</h4>
+        </div>
+
+        @foreach (var categoria in Model.TiemposResolucionPorCategoriaUsuario)
+        {
+            var categoriaId = categoria.Key;
+            var usuarios = categoria.Value;
+            var nombreCategoria = Model.NombresCategorias.ContainsKey(categoriaId)
+            ? Model.NombresCategorias[categoriaId]
+            : $"Categoría {categoriaId}";
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header">@nombreCategoria</div>
+                    <div class="card-body">
+                        <canvas id="categoriaUsuarioChart_@categoriaId"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </div>
 
 <script>
-    // Estado de los Tickets (Pie)
     const estadoChart = new Chart(document.getElementById('estadoChart'), {
         type: 'pie',
         data: {
@@ -100,11 +112,16 @@
         }
     });
 
-    // Tickets por Categoría (Bar)
     const categoriaChart = new Chart(document.getElementById('categoriaChart'), {
         type: 'bar',
         data: {
-            labels: [@Html.Raw(string.Join(",", Model.TicketsPorCategoria.Keys.Select(k => $"\"Categoría {k}\"")))],
+            labels: [
+    @Html.Raw(string.Join(",",
+                 Model.TicketsPorCategoria.Keys.Select(k =>
+                     $"\"{(Model.NombresCategorias.ContainsKey(int.Parse(k)) ? Model.NombresCategorias[int.Parse(k)] : $"Categoría {k}")}\""
+                 )
+             ))
+            ],
             datasets: [{
                 label: 'Tickets',
                 data: [@string.Join(",", Model.TicketsPorCategoria.Values)],
@@ -113,7 +130,6 @@
         }
     });
 
-    // Tickets por Día de la Semana (Line)
     const semanaChart = new Chart(document.getElementById('semanaChart'), {
         type: 'line',
         data: {
@@ -127,7 +143,6 @@
         }
     });
 
-    // Tickets por Usuario (Bar)
     const usuarioChart = new Chart(document.getElementById('usuarioChart'), {
         type: 'bar',
         data: {
@@ -140,27 +155,38 @@
         }
     });
 
-    // NUEVO: Gráfico de Tiempos de Resolución
-    const resolucionChart = new Chart(document.getElementById('resolucionChart'), {
-        type: 'bar',
-        data: {
-            labels: [@Html.Raw(string.Join(",", Model.TiemposResolucionHoras.Keys.Select(id => $"\"Ticket {id}\"")))],
-            datasets: [{
-                label: 'Horas para Resolver',
-                data: [@string.Join(",", Model.TiemposResolucionHoras.Values.Select(v => v.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))],
-                backgroundColor: '#6f42c1'
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Horas'
+    // Gráficos dinámicos por categoría y usuario
+    @foreach (var categoria in Model.TiemposResolucionPorCategoriaUsuario)
+    {
+        var categoriaId = categoria.Key;
+        var usuarios = categoria.Value;
+
+        var labels = string.Join(",", usuarios.Keys.Select(u => $"\"Usuario {u}\""));
+        var data = string.Join(",", usuarios.Values.Select(v => v.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)));
+
+        <text>
+                new Chart(document.getElementById('categoriaUsuarioChart_@categoriaId'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(labels)],
+                        datasets: [{
+                            label: 'Promedio Horas',
+                            data: [@Html.Raw(data)],
+                            backgroundColor: '#20c997'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Horas'
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        }
-    });
+                });
+        </text>
+    }
 </script>
