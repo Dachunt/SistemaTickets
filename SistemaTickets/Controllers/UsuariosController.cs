@@ -262,6 +262,20 @@ namespace SistemaTickets.Controllers
             return View(usuario);
 
         }
+        public  async Task<IActionResult> CambiarContra(string contraActual)
+        {
+
+            return View();
+        }
+        //Parte de dashboard de usuarios externos 
+
+        public IActionResult HomeExterno()
+        {
+            ViewBag.MensajeExito = TempData["MensajeExitoExterno"] as string;
+            return View();
+        }
+
+
     }
 
 }
