@@ -21,9 +21,9 @@ namespace SistemaTickets.Controllers
         // GET: Asignaciones
         public async Task<IActionResult> Index()
         {
-            // Obtener técnicos
-            var tecnicos = await _context.Usuarios
-                .Where(u => u.RolId == 2) // Técnicos
+            // Obtener técnicos y administradores
+            var tecnicosYAdmins = await _context.Usuarios
+                .Where(u => u.RolId == 1 || u.RolId == 2) // Administradores y Técnicos
                 .ToListAsync();
 
             // Obtener IDs de tickets que ya están asignados
@@ -31,7 +31,7 @@ namespace SistemaTickets.Controllers
                 .Select(a => a.TicketId)
                 .ToListAsync();
 
-            // Obtener tickets abiertos que NO estén asignados
+            // Obtener tickets abiertos que NO estén asignados, con su categoría
             var ticketsConCategoria = await (from t in _context.Tickets
                                              join c in _context.Categorias
                                              on t.CategoriaId equals c.CategoriaId
@@ -56,7 +56,7 @@ namespace SistemaTickets.Controllers
                 Prioridad = t.Prioridad,
                 Estado = t.Estado,
                 Categoria = t.CategoriaNombre,
-                TecnicosDisponibles = tecnicos
+                TecnicosDisponibles = tecnicosYAdmins
             }).ToList();
 
             return View(viewModels);
@@ -65,9 +65,19 @@ namespace SistemaTickets.Controllers
 
 
 
+
         [HttpPost]
         public async Task<IActionResult> Asignar(int TicketId, int TecnicoId)
         {
+            // Verificar si el ticket ya está asignado
+            bool yaAsignado = await _context.Asignaciones.AnyAsync(a => a.TicketId == TicketId);
+
+            if (yaAsignado)
+            {
+                TempData["Error"] = "Este ticket ya está asignado a un técnico.";
+                return RedirectToAction(nameof(Index));
+            }
+
             // Crear la asignación
             var asignacion = new Asignaciones
             {
@@ -80,9 +90,10 @@ namespace SistemaTickets.Controllers
             _context.Asignaciones.Add(asignacion);
             await _context.SaveChangesAsync();
 
-            // Redirigir al listado para que se vea el cambio
+            TempData["Success"] = "El ticket fue asignado correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
 
 
 

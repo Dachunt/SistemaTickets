@@ -1,0 +1,102 @@
+﻿@{
+    var ticket = ViewBag.Ticket;
+    var archivos = ViewBag.Archivos as IEnumerable<dynamic>;
+    var comentarios = ViewBag.Comentarios as IEnumerable<dynamic>;
+    var historial = ViewBag.Historial as IEnumerable<dynamic>;
+    Layout = "_Layout";
+}
+
+<div class="mb-3">
+    <a class="btn btn-primary"
+       href="@Url.Action("GenerarInformeTicket", "SoporteTecnico", new { id = ticket.TicketId })"
+       target="_blank">
+        Descargar informe PDF
+    </a>
+</div>
+
+<h2>Detalle del Informe del Ticket #@ticket.TicketId</h2>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Información del Ticket</strong>
+    </div>
+    <div class="card-body">
+        <p><strong>Aplicación:</strong> @ticket.NombreAplicacion</p>
+        <p><strong>Descripción:</strong> @ticket.Descripcion</p>
+        <p><strong>Prioridad:</strong> @ticket.Prioridad</p>
+        <p><strong>Estado:</strong> @ticket.Estado</p>
+        <p><strong>Fecha de Creación:</strong> @ticket.FechaCreacion.ToString("dd/MM/yyyy")</p>
+        <p><strong>Fecha de Resolución:</strong> @(ticket.FechaResolucion != null ? ((DateTime)ticket.FechaResolucion).ToString("dd/MM/yyyy") : "Pendiente")</p>
+        <p><strong>Usuario:</strong> @ticket.Usuario (@ticket.UsuarioEmail)</p>
+        <p><strong>Categoría:</strong> @ticket.Categoria</p>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Archivos Adjuntos</strong>
+    </div>
+    <div class="card-body">
+        @if (archivos != null && archivos.Any())
+        {
+            <ul>
+                @foreach (var archivo in archivos)
+                {
+                    <li>@archivo.NombreArchivo</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No hay archivos adjuntos.</p>
+        }
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Comentarios</strong>
+    </div>
+    <div class="card-body">
+        @if (comentarios != null && comentarios.Any())
+        {
+            <ul>
+                @foreach (var c in comentarios)
+                {
+                    <li>
+                        <strong>@c.Autor</strong> (@c.FechaComentario.ToString("dd/MM/yyyy HH:mm")):<br />
+                        @c.Comentario
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No hay comentarios.</p>
+        }
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Historial de Estados</strong>
+    </div>
+    <div class="card-body">
+        @if (historial != null && historial.Any())
+        {
+            <ul>
+                @foreach (var h in historial)
+                {
+                    <li>
+                        <strong>@h.FechaCambio.ToString("dd/MM/yyyy HH:mm")</strong> - <strong>@h.Tecnico</strong>:
+                        <span>@h.EstadoAnterior</span> &rarr; <span>@h.EstadoNuevo</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No hay historial de estados.</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,69 @@
+﻿@{
+	ViewData["Title"] = "Cambiar Contraseña";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-blue fw-bold">Cambiar contraseña</h2>
+</div>
+
+
+<div class="card-body bg-white">
+    <form asp-action="CambiarContra" asp-controller="Usuarios" method="post" class="border rounded p-4 bg-light mt-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Correo</label>
+                <input name="correo" class="form-control rounded-pill" type="email" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Contraseña actual</label>
+                <input name="contraActual" type="password" class="form-control rounded-pill" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nueva contraseña</label>
+                <input name="nuevaContra" type="password" class="form-control rounded-pill" required />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="fas fa-plus-circle me-2"></i>Cambiar contraseña
+            </button>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: '@TempData["Success"]',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK'
+                            });
+            </text>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: '@TempData["Error"]',
+                                confirmButtonColor: '#d33',
+                                confirmButtonText: 'OK'
+                            });
+            </text>
+        }
+    </script>
+}
+

@@ -262,10 +262,53 @@ namespace SistemaTickets.Controllers
             return View(usuario);
 
         }
-        public  async Task<IActionResult> CambiarContra(string contraActual)
+        [HttpGet]
+        public async Task<IActionResult> CambiarContra()
         {
-
             return View();
+        }
+
+        [HttpPost]
+        public  async Task<IActionResult> CambiarContra(string correo, string contraActual, string nuevaContra)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == correo);
+            if (usuario == null)
+            {
+                TempData["Error"] = "Usuario no encontrado.";
+                return View();
+            }
+            var resultado = _hasher.VerifyHashedPassword(usuario, usuario.Contrasena, contraActual);
+            if (resultado == PasswordVerificationResult.Failed)
+            {
+                TempData["Error"] = "Clave actual incorrecta.";
+                
+                return View(usuario);
+
+
+            }
+            else
+            {
+                if (contraActual == nuevaContra)
+                {
+                    TempData["Error"] = "La nueva clave no puede ser igual a la actual.";
+                    return View(usuario);
+
+
+
+                }
+                else
+                {
+                    usuario.Contrasena = _hasher.HashPassword(usuario, nuevaContra);
+                    _context.Usuarios.Update(usuario);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Clave cambiada exitosamente.";
+                    return View(usuario);
+
+
+
+                }
+
+            }
         }
         //Parte de dashboard de usuarios externos 
 

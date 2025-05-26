@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
@@ -6,44 +7,14 @@ namespace SistemaTickets.Controllers
     public class LoginController : Controller
     {
         private readonly SistemaTicketsContext _sistemaContext;
+        private readonly PasswordHasher<Usuarios> _hasher;
+
 
         public LoginController(SistemaTicketsContext context)
         {
             _sistemaContext = context;
-        }
+            _hasher = new PasswordHasher<Usuarios>();
 
-        // GET: Registro
-        public IActionResult Registro()
-        {
-            return View();
-        }
-
-        // POST: Registro
-        [HttpPost]
-        public IActionResult Registro(Usuarios usuario)
-        {
-            if (ModelState.IsValid)
-            {
-                // Verificar si ya existe un usuario con ese correo
-                var existe = _sistemaContext.Usuarios.FirstOrDefault(u => u.Email == usuario.Email && u.Estado == true);
-                if (existe != null)
-                {
-                    ViewBag.Error = "El correo ya está registrado.";
-                    return View(usuario);
-                }
-
-                _sistemaContext.Usuarios.Add(usuario);
-                _sistemaContext.SaveChanges();
-
-                // Guardamos la sesión con los datos del usuario
-                HttpContext.Session.SetInt32("id_usuario", usuario.UserId);
-                HttpContext.Session.SetString("nombre", usuario.Nombre);
-                HttpContext.Session.SetInt32("rol", usuario.RolId);
-
-                return RedirectToAction("Login", "Login");
-            }
-
-            return View(usuario);
         }
 
         // GET: Login
@@ -56,8 +27,17 @@ namespace SistemaTickets.Controllers
         [HttpPost]
         public IActionResult Login(string email, string contrasena)
         {
+            //var user = _sistemaContext.Usuarios
+            //    .FirstOrDefault(u => u.Email == email && u.Contrasena == contrasena);
             var user = _sistemaContext.Usuarios
-                .FirstOrDefault(u => u.Email == email && u.Contrasena == contrasena);
+               .FirstOrDefault(u => u.Email == email);
+
+            var resultado = _hasher.VerifyHashedPassword(user, user.Contrasena, contrasena);
+
+            if (resultado != PasswordVerificationResult.Success)
+            {
+                user = null; // Si la verificación falla, establecemos user como null
+            }
 
             if (user != null)
             {
@@ -95,11 +75,6 @@ namespace SistemaTickets.Controllers
             return RedirectToAction("Login");
         }
 
-        // GET: Index
-        public IActionResult Index()
-        {
-            return View();
-        }
     }
 
 }
