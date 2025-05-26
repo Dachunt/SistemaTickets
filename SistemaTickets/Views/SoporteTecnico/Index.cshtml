@@ -33,61 +33,71 @@
     </div>
 </div>
 
-<h4 class="mt-5">Grafica de barras: Tickets recibidos por mes</h4>
-<canvas id="ticketsBarChart" height="100"></canvas>
+<h4 class="mt-5">Gráfica de barras: Tickets recibidos por mes</h4>
+<div class="d-flex justify-content-center">
+    <canvas id="ticketsBarChart" width="400" height="200" style="max-width: 100%; height: auto;"></canvas>
+</div>
 
-<h4 class="mt-5">Grafica de pastel: Categorías de problemas</h4>
-<canvas id="categoriasPieChart" height="100"></canvas>
+<h4 class="mt-5">Gráfica de pastel: Categorías de problemas</h4>
+<div class="d-flex justify-content-center">
+    <canvas id="categoriasPieChart" width="300" height="300" style="max-width: 100%; height: auto;"></canvas>
+</div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Datos para gráfica de barras
         const barLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-            ((IEnumerable<dynamic>)ticketsPorMes).Select(x => $"{x.Mes}/{x.Año}")
-        ));
-        const barData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-            ((IEnumerable<dynamic>)ticketsPorMes).Select(x => x.Cantidad)
+                    ((IEnumerable<dynamic>)ticketsPorMes).Select(x => $"{x.Mes}/{x.Año}")
+            ));
+    const barData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+                ((IEnumerable<dynamic>)ticketsPorMes).Select(x => x.Cantidad)
         ));
 
-        const barChart = new Chart(document.getElementById('ticketsBarChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: barLabels,
-                datasets: [{
-                    label: 'Tickets por mes',
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    data: barData
-                }]
-            },
-            options: {
-                scales: {
-                    y: { beginAtZero: true }
-                }
+    const barChart = new Chart(document.getElementById('ticketsBarChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: barLabels,
+            datasets: [{
+                label: 'Tickets por mes',
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                data: barData
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
             }
-        });
+        }
+    });
 
         // Datos para gráfica de pastel
         const pieLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-            ((IEnumerable<dynamic>)categorias).Select(c => c.Categoria)
+                ((IEnumerable<dynamic>)categorias).Select(c => c.Categoria)
         ));
-        const pieData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
-            ((IEnumerable<dynamic>)categorias).Select(c => c.Cantidad)
+    const pieData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+                ((IEnumerable<dynamic>)categorias).Select(c => c.Cantidad)
         ));
 
-        const pieChart = new Chart(document.getElementById('categoriasPieChart').getContext('2d'), {
-            type: 'pie',
-            data: {
-                labels: pieLabels,
-                datasets: [{
-                    backgroundColor: [
-                        '#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#f44336', '#00bcd4'
-                    ],
-                    data: pieData
-                }]
-            }
-        });
-    </script>
+    const pieChart = new Chart(document.getElementById('categoriasPieChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: pieLabels,
+            datasets: [{
+                backgroundColor: [
+                    '#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#f44336', '#00bcd4'
+                ],
+                data: pieData
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
 }

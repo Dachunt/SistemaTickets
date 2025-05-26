@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaTickets.Models;
+using System.Security.Claims;
 
 namespace SistemaTickets.Controllers
 {
@@ -15,36 +16,377 @@ namespace SistemaTickets.Controllers
         }
         public IActionResult Home()
         {
+            ViewBag.MensajeExito = TempData["MensajeExito"] as string;
+            return View();
+        }
+
+        public async Task<IActionResult> MisAsignaciones(string nombre, string prioridad, DateTime? fecha)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var query = from a in _context.Asignaciones
+                        join t in _context.Tickets on a.TicketId equals t.TicketId
+                        join u in _context.Usuarios on t.UserId equals u.UserId
+                        join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                        where a.TecnicoId == userId
+                        select new
+                        {
+                            a.AsignacionId,
+                            t.TicketId,
+                            t.NombreAplicacion,
+                            t.Estado,
+                            t.Prioridad,
+                            t.FechaCreacion,
+                            t.FechaResolucion,
+                            UsuarioNombre = u.Nombre,
+                            Categoria = c.Nombre
+                        };
+
+            if (!string.IsNullOrEmpty(nombre))
+                query = query.Where(x => x.NombreAplicacion == nombre);
+
+            if (!string.IsNullOrEmpty(prioridad))
+                query = query.Where(x => x.Prioridad == prioridad);
+
+            if (fecha.HasValue)
+                query = query.Where(x => x.FechaCreacion.Date == fecha.Value.Date);
+
+            var asignaciones = await query.ToListAsync();
+
+            ViewBag.Asignaciones = asignaciones;
+
+            // Filtros disponibles
+            ViewBag.NombresDisponibles = await _context.Tickets
+                .Where(t => _context.Asignaciones.Any(a => a.TicketId == t.TicketId && a.TecnicoId == userId))
+                .Select(t => t.NombreAplicacion)
+                .Distinct()
+                .ToListAsync();
+
+            ViewBag.NombreFiltro = nombre;
+            ViewBag.PrioridadFiltro = prioridad;
+            ViewBag.FechaFiltro = fecha?.ToString("yyyy-MM-dd");
+
+            return View();
+        }
+
+        public async Task<IActionResult> VerTicket(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Descripcion,
+                                    t.Prioridad,
+                                    t.Estado,
+                                    t.FechaCreacion,
+                                    t.FechaResolucion,
+                                    Usuario = u.Nombre,
+                                    Categoria = c.Nombre,
+                                    EmailUsuario = u.Email
+                                }).FirstOrDefaultAsync();
+
+            if (ticket == null)
+                return NotFound();
+
+            var archivos = await _context.ArchivosAdjuntos
+                                .Where(a => a.TicketId == id)
+                                .ToListAsync();
+
+            var comentarios = await (from c in _context.Comentarios
+                                     join u in _context.Usuarios on c.AutorId equals u.UserId
+                                     where c.TicketId == id
+                                     orderby c.FechaComentario
+                                     select new
+                                     {
+                                         Autor = u.Nombre,
+                                         Comentario = c.Comentario,
+                                         Fecha = c.FechaComentario
+                                     }).ToListAsync();
+
+            ViewBag.Ticket = ticket;
+            ViewBag.Archivos = archivos;
+            ViewBag.Comentarios = comentarios;
+
+            return View();
+        }
+
+        public async Task<IActionResult> DetalleTicket(int id)
+        {
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Descripcion,
+                                    t.Prioridad,
+                                    t.Estado,
+                                    t.FechaCreacion,
+                                    t.FechaResolucion,
+                                    UsuarioNombre = u.Nombre,
+                                    UsuarioEmail = u.Email,
+                                    CategoriaNombre = c.Nombre
+                                }).FirstOrDefaultAsync();
+
+            if (ticket == null)
+                return NotFound();
+
+            var archivos = await _context.ArchivosAdjuntos
+                .Where(a => a.TicketId == id)
+                .ToListAsync();
+
+            var comentarios = await (from com in _context.Comentarios
+                                     join u in _context.Usuarios on com.AutorId equals u.UserId
+                                     where com.TicketId == id
+                                     orderby com.FechaComentario descending
+                                     select new
+                                     {
+                                         com.ComentarioId,
+                                         com.Comentario,
+                                         com.FechaComentario,
+                                         Autor = u.Nombre
+                                     }).ToListAsync();
+
+            ViewBag.Ticket = ticket;
+            ViewBag.Archivos = archivos;
+            ViewBag.Comentarios = comentarios;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EnviarComentario(int ticketId, string comentario)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+
+            if (userId == null) return RedirectToAction("Login", "Login");
+
+            var nuevoComentario = new Comentarios
+            {
+                TicketId = ticketId,
+                AutorId = userId.Value,
+                Comentario = comentario,
+                FechaComentario = DateTime.Now
+            };
+
+            _context.Comentarios.Add(nuevoComentario);
+
+            _context.HistorialEstados.Add(new HistorialEstados
+            {
+                TicketId = ticketId,
+                EstadoAnterior = "Sin comentario",
+                EstadoNuevo = "Comentario agregado",
+                FechaCambio = DateTime.Now,
+                CambiadoPor = userId.Value
+            });
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Home", "SoporteTecnico", new { id = ticketId });
+        }
+
+
+
+        public async Task<IActionResult> ActualizarEstado(int id)
+        {
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Estado,
+                                    Usuario = u.Nombre
+                                }).FirstOrDefaultAsync();
+
+            var archivos = await _context.ArchivosAdjuntos
+                .Where(a => a.TicketId == id)
+                .ToListAsync();
+
+            ViewBag.Ticket = ticket;
+            ViewBag.Archivos = archivos;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActualizarEstado(int ticketId, string nuevoEstado)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null) return RedirectToAction("Login", "Login");
+
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null) return NotFound();
+
+            string estadoAnterior = ticket.Estado;
+            ticket.Estado = nuevoEstado;
+
+            // Si se cierra el ticket, registrar la fecha de resolución
+            if (nuevoEstado.ToLower() == "Resuelto")
+            {
+                ticket.FechaResolucion = DateTime.Now;
+            }
+
+            _context.HistorialEstados.Add(new HistorialEstados
+            {
+                TicketId = ticketId,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = nuevoEstado,
+                FechaCambio = DateTime.Now,
+                CambiadoPor = userId.Value
+            });
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("MisAsignaciones");
+        }
+
+        //Este es el de mis asignaciones
+        public async Task<IActionResult> VerHistorial(int id, string nombre = "", string prioridad = "", string estado = "", DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+
+            // Obtener historial con filtros aplicados
+            var historialQuery = from h in _context.HistorialEstados
+                                 join u in _context.Usuarios on h.CambiadoPor equals u.UserId
+                                 join t in _context.Tickets on h.TicketId equals t.TicketId
+                                 where h.TicketId == id && h.CambiadoPor == userId
+                                 select new
+                                 {
+                                     h.EstadoAnterior,
+                                     h.EstadoNuevo,
+                                     h.FechaCambio,
+                                     Tecnico = u.Nombre,
+                                     TicketPrioridad = t.Prioridad,
+                                     TicketEstado = t.Estado
+                                 };
+
+            if (!string.IsNullOrEmpty(nombre))
+                historialQuery = historialQuery.Where(h => h.Tecnico.Contains(nombre));
+
+            if (!string.IsNullOrEmpty(prioridad))
+                historialQuery = historialQuery.Where(h => h.TicketPrioridad == prioridad);
+
+            if (!string.IsNullOrEmpty(estado))
+                historialQuery = historialQuery.Where(h => h.EstadoNuevo == estado);
+
+            if (fechaInicio.HasValue)
+                historialQuery = historialQuery.Where(h => h.FechaCambio >= fechaInicio.Value);
+
+            if (fechaFin.HasValue)
+                historialQuery = historialQuery.Where(h => h.FechaCambio <= fechaFin.Value);
+
+            var historial = await historialQuery
+                .OrderByDescending(h => h.FechaCambio)
+                .ToListAsync();
+
+            ViewBag.Historial = historial;
+            ViewBag.NombreFiltro = nombre;
+            ViewBag.PrioridadFiltro = prioridad;
+            ViewBag.EstadoFiltro = estado;
+            ViewBag.FechaInicio = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFin = fechaFin?.ToString("yyyy-MM-dd");
+
             return View();
         }
 
 
+        //Este es el general
+        public async Task<IActionResult> Details(
+        string nombre = "",
+        string prioridad = "",
+        string estado = "",
+        DateTime? fechaInicio = null,
+        DateTime? fechaFin = null,
+        DateTime? resolucionInicio = null,
+        DateTime? resolucionFin = null)
+        {
+            var historial = await (from a in _context.Asignaciones
+                                   join t in _context.Tickets on a.TicketId equals t.TicketId
+                                   join u in _context.Usuarios on t.UserId equals u.UserId
+                                   join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                   where t.Estado == "Resuelto"
+                                   select new
+                                   {
+                                       a.AsignacionId,
+                                       t.TicketId,
+                                       u.Nombre,
+                                       t.NombreAplicacion,
+                                       t.Prioridad,
+                                       t.Estado,
+                                       t.FechaCreacion,
+                                       t.FechaResolucion
+                                   }).ToListAsync();
+
+            if (!string.IsNullOrEmpty(nombre))
+                historial = historial.Where(h => h.NombreAplicacion.Contains(nombre)).ToList();
+
+            if (!string.IsNullOrEmpty(prioridad))
+                historial = historial.Where(h => h.Prioridad == prioridad).ToList();
+
+            if (!string.IsNullOrEmpty(estado))
+                historial = historial.Where(h => h.Estado == estado).ToList();
+
+            if (fechaInicio.HasValue)
+                historial = historial.Where(h => h.FechaCreacion >= fechaInicio.Value).ToList();
+
+            if (fechaFin.HasValue)
+                historial = historial.Where(h => h.FechaCreacion <= fechaFin.Value).ToList();
+
+            if (resolucionInicio.HasValue)
+                historial = historial.Where(h => h.FechaResolucion.HasValue && h.FechaResolucion >= resolucionInicio.Value).ToList();
+
+            if (resolucionFin.HasValue)
+                historial = historial.Where(h => h.FechaResolucion.HasValue && h.FechaResolucion <= resolucionFin.Value).ToList();
+
+            ViewBag.NombreFiltro = nombre;
+            ViewBag.PrioridadFiltro = prioridad;
+            ViewBag.EstadoFiltro = estado;
+            ViewBag.FechaInicioFiltro = fechaInicio?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFinFiltro = fechaFin?.ToString("yyyy-MM-dd");
+            ViewBag.ResolucionInicioFiltro = resolucionInicio?.ToString("yyyy-MM-dd");
+            ViewBag.ResolucionFinFiltro = resolucionFin?.ToString("yyyy-MM-dd");
+
+            return View(historial);
+        }
+
         public async Task<IActionResult> Index()
         {
-            // 1. Tickets resueltos (estado "Cerrado")
             var ticketsResueltos = await _context.Tickets
-                .Where(t => t.Estado == "Cerrado")
+                .Where(t => t.Estado == "Resuelto")
                 .ToListAsync();
 
-            // 2. Tiempo promedio de resolución (en días) con JOIN entre HistorialEstados y Tickets
             var tiemposResolucion = await (
                 from h in _context.HistorialEstados
                 join t in _context.Tickets on h.TicketId equals t.TicketId
-                where h.EstadoNuevo == "Cerrado"
+                where h.EstadoNuevo == "Resuelto"
                 select EF.Functions.DateDiffDay(t.FechaCreacion, h.FechaCambio)
             ).ToListAsync();
 
             double promedioDias = tiemposResolucion.Any() ? tiemposResolucion.Average() : 0;
 
-            // 3. Tickets en proceso (JOIN Asignaciones + Tickets)
             var ticketsEnProceso = await (
                 from a in _context.Asignaciones
                 join t in _context.Tickets on a.TicketId equals t.TicketId
-                where t.Estado != "Cerrado"
+                where t.Estado != "Resuelto"
                 select t
             ).CountAsync();
 
-            // 4. Tickets por mes (gráfica de barras)
             var ticketsPorMes = await (
                 from t in _context.Tickets
                 group t by new { t.FechaCreacion.Year, t.FechaCreacion.Month } into g
@@ -56,7 +398,6 @@ namespace SistemaTickets.Controllers
                 }
             ).ToListAsync();
 
-            // 5. Categorías (JOIN Tickets + Categorias)
             var categorias = await (
                 from t in _context.Tickets
                 join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
@@ -68,7 +409,6 @@ namespace SistemaTickets.Controllers
                 }
             ).ToListAsync();
 
-            // Enviar a la vista
             ViewBag.TiempoPromedio = promedioDias;
             ViewBag.EnProceso = ticketsEnProceso;
             ViewBag.Resueltos = ticketsResueltos.Count;

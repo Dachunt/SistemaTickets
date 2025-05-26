@@ -1,7 +1,19 @@
 ﻿@{
     ViewBag.Title = "Menú Soporte Técnico";
+    var mensajeExito = ViewBag.MensajeExito as string;
 }
 <link href="~/css/Menu.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+
+@if (!string.IsNullOrEmpty(mensajeExito))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i>
+        @mensajeExito
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="container mt-5">
     <div class="row g-4 justify-content-center">
@@ -14,15 +26,19 @@
             </a>
         </div>
         <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">VER MIS ASIGNACIONES</div>
-                <div class="card-text">Mis asignaciones</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="MisAsignaciones" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">VER MIS ASIGNACIONES</div>
+                    <div class="card-text">Mis asignaciones</div>
+                </div>
+			</a>
         </div>
         <div class="col-md-4">
             <div class="card-option">
-                <div class="card-title">HISTORIAL</div>
-                <div class="card-text">Historial</div>
+                <a asp-controller="SoporteTecnico" asp-action="Details" class="text-decoration-none ">
+                    <div class="card-title">HISTORIAL</div>
+                    <div class="card-text">Historial</div>
+                </a>
             </div>
         </div>
         <div class="col-md-4">
@@ -51,3 +67,4 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

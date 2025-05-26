@@ -1,0 +1,86 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Historial General de Tickets";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css">
+
+    <h2>Historial General de Tickets</h2>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="nombre" class="form-control" placeholder="Buscar por aplicación"
+                   value="@ViewBag.NombreFiltro" />
+        </div>
+        <div class="col-md-2">
+            <select name="prioridad" class="form-control">
+                <option value="">Todas las prioridades</option>
+                <option value="Crítico">Crítico</option>
+                <option value="Importante">Importante</option>
+                <option value="Baja">Baja</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="estado" class="form-control">
+                <option value="">Todos los estados</option>
+                <option value="Cerrado" selected>Cerrado</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="fechaInicio" class="form-control"
+                   value="@ViewBag.FechaInicioFiltro" placeholder="Fecha creación inicio" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="fechaFin" class="form-control"
+                   value="@ViewBag.FechaFinFiltro" placeholder="Fecha creación fin" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="resolucionInicio" class="form-control"
+                   value="@ViewBag.ResolucionInicioFiltro" placeholder="Resolución desde" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="resolucionFin" class="form-control"
+                   value="@ViewBag.ResolucionFinFiltro" placeholder="Resolución hasta" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Aplicación</th>
+                    <th>Cliente</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Fecha de Creación</th>
+                    <th>Fecha de Resolución</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TicketId</td>
+                        <td>@item.NombreAplicacion</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Prioridad</td>
+                        <td>@item.Estado</td>
+                        <td>@item.FechaCreacion?.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@item.FechaResolucion?.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <a asp-controller="SoporteTecnico" asp-action="DetalleTicket" asp-route-id="@item.TicketId"
+                               class="btn btn-sm btn-info">Ver Detalle</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+

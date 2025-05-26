@@ -22,38 +22,11 @@ namespace SistemaTickets.Controllers
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
+            ViewBag.MensajeExito = TempData["MensajeExito"];
             return View(await _context.Tickets.ToListAsync());
         }
 
-        // GET: Tickets/Details/5
-      /*public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var ticket = await _context.Tickets
-                .Include(t => t.CategoriaId)
-                .Include(t => t.UserId)
-                .Include(t => t.)
-                .FirstOrDefaultAsync(t => t.TicketId == id);
-
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-
-            return View(ticket);
-        }*/
-
-        // GET: Tickets/Create
-        //public IActionResult Create()
-        //{
-        //    ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre");
-        //    ViewData["UserId"] = new SelectList(_context.Usuarios, "UserId", "Nombre");
-        //    return View();
-        //}
+       
 
 
         // GET: Tickets/Create
@@ -88,7 +61,7 @@ namespace SistemaTickets.Controllers
                 tickets.Estado = "Abierto";
 
                 _context.Add(tickets);
-                await _context.SaveChangesAsync(); // Genera el TicketId
+                await _context.SaveChangesAsync(); 
 
                 if (Archivos != null && Archivos.Count > 0)
                 {
@@ -119,9 +92,10 @@ namespace SistemaTickets.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                }
 
-                return RedirectToAction("Index", "Home");
+                }
+                TempData["MensajeExito"] = "El ticket fue creado exitosamente.";
+                return RedirectToAction("Home", "SoporteTecnico");
             }
 
             var usuario = _context.Usuarios.FirstOrDefault(u => u.UserId == userId);
@@ -131,6 +105,20 @@ namespace SistemaTickets.Controllers
             ViewBag.Categorias = new SelectList(_context.Categorias.ToList(), "CategoriaId", "Nombre", tickets.CategoriaId);
 
             return View(tickets);
+        }
+
+
+        [HttpPost]
+        public IActionResult EliminarArchivo(int archivoId)
+        {
+            var archivo = _context.ArchivosAdjuntos.Find(archivoId);
+            if (archivo != null)
+            {
+                _context.ArchivosAdjuntos.Remove(archivo);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Edit", new { id = archivo.TicketId }); // o al listado
         }
 
 

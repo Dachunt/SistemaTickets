@@ -1,0 +1,108 @@
+﻿@using SistemaTickets.Models
+@{
+    var ticket = ViewBag.Ticket;
+    var archivos = ViewBag.Archivos as List<ArchivosAdjuntos>;
+    var comentarios = ViewBag.Comentarios as List<dynamic>;
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-ticket-detailed"></i> Detalles del Ticket - @ticket.TicketId</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Nombre del problema:</strong> @ticket.NombreAplicacion</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-info text-dark">@ticket.Estado</span></p>
+                    <p>
+                        <strong>Prioridad:</strong>
+                        @switch (ticket.Prioridad)
+                        {
+                            case "Alta":
+                                <span class="badge bg-danger">Alta</span>
+                                break;
+                            case "Media":
+                                <span class="badge bg-warning text-dark">Media</span>
+                                break;
+                            case "Baja":
+                                <span class="badge bg-success">Baja</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@ticket.Prioridad</span>
+                                break;
+                        }
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Usuario:</strong> @ticket.UsuarioNombre (@ticket.UsuarioEmail)</p>
+                    <p><strong>Categoría:</strong> @ticket.CategoriaNombre</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <p><strong>Descripción:</strong></p>
+                <div class="alert alert-secondary" role="alert">
+                    @ticket.Descripcion
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="bi bi-paperclip"></i> Archivos Adjuntos</h5>
+                @if (archivos != null && archivos.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var archivo in archivos)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-file-earmark"></i> @archivo.NombreArchivo
+                                </div>
+                                <a href="@archivo.RutaArchivo" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-circle"></i> No se subieron archivos adjuntos para este ticket.
+                    </div>
+                }
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="bi bi-chat-dots"></i> Comentarios</h5>
+                @if (comentarios != null && comentarios.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var c in comentarios)
+                        {
+                            <div class="list-group-item">
+                                <strong>@c.Autor</strong> <span class="text-muted">(@c.FechaComentario.ToString("g"))</span>
+                                <p class="mb-0">@c.Comentario</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No hay comentarios aún.</p>
+                }
+            </div>
+
+            <div class="mb-3">
+                <h5><i class="bi bi-plus-circle"></i> Agregar Comentario</h5>
+                <form asp-action="EnviarComentario" method="post">
+                    <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                    <div class="mb-3">
+                        <textarea name="comentario" class="form-control" rows="4" placeholder="Escribe tu comentario aquí..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-send"></i> Enviar Comentario
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

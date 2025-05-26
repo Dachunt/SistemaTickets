@@ -62,14 +62,17 @@
                 }
                 else if (rol == 2)
                 {
+                    <a asp-controller="SoporteTecnico" asp-action="Home" class="list-group-item list-group-item-action">
+                        <i class="bi bi-houses-fill"></i> Inicio
+                    </a>
                     <a asp-area="" asp-controller="Tickets" asp-action="Create" class="list-group-item list-group-item-action">
                         <i class="bi bi-plus-square"></i>
                         Crear
                     </a>
-                    <a asp-controller="SoporteTecnico" asp-action="Home" class="list-group-item list-group-item-action">
-                        <i class="bi bi-houses-fill"></i> Inicio
+                    <a asp-controller="SoporteTecnico" asp-action="Details" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-earmark-text"></i> Historial
                     </a>
-                    <a asp-controller="Ticket" asp-action="MisTickets" class="list-group-item list-group-item-action">
+                    <a asp-controller="SoporteTecnico" asp-action="MisAsignaciones" class="list-group-item list-group-item-action">
                         <i class="bi bi-ticket-detailed-fill"></i> Mis Tickets
                     </a>
                     <a asp-controller="SoporteTecnico" asp-action="Index" class="list-group-item list-group-item-action">

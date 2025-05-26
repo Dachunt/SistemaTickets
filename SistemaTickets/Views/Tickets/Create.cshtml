@@ -12,8 +12,30 @@
         <h3>Formulario de ticket</h3>
     </div>
 
+    <!-- Notificación de éxito -->
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div class="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @TempData["MensajeExito"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const toastEl = document.querySelector('.toast');
+            const bsToast = new bootstrap.Toast(toastEl);
+            bsToast.show();
+        </script>
+    }
+
     <form asp-action="Create" enctype="multipart/form-data" method="post">
         @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="FechaResolucion" />
 
         <div class="row">
             <!-- Datos del ticket -->
@@ -59,7 +81,29 @@
                             <small class="text-muted">PDF, imágenes, etc.</small>
                         </div>
                     </div>
+
                     <ul id="fileList" class="mt-2 list-group small"></ul>
+
+                    @if (ViewBag.ArchivosAdjuntos != null)
+                    {
+                        <div class="mt-3">
+                            <label class="form-label">Archivos cargados</label>
+                            <ul class="list-group">
+                                @foreach (var archivo in ViewBag.ArchivosAdjuntos)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="@Url.Action("DescargarArchivo", "Tickets", new { id = archivo.Id })" target="_blank">@archivo.Nombre</a>
+                                        <form method="post" asp-action="EliminarArchivo" asp-controller="Tickets" class="ms-2" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este archivo?');">
+                                            <input type="hidden" name="archivoId" value="@archivo.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
 

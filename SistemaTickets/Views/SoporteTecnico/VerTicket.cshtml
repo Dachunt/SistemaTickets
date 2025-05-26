@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Detalles del Ticket";
+    var ticket = ViewBag.Ticket;
+    var archivos = ViewBag.Archivos;
+    var comentarios = ViewBag.Comentarios;
+}
+
+<h2>Detalles del Ticket</h2>
+
+<div class="card p-3 mb-3">
+    <p><strong>Aplicación:</strong> @ticket.NombreAplicacion</p>
+    <p><strong>Descripción:</strong> @ticket.Descripcion</p>
+    <p><strong>Categoría:</strong> @ticket.Categoria</p>
+    <p><strong>Prioridad:</strong> @ticket.Prioridad</p>
+    <p><strong>Estado:</strong> @ticket.Estado</p>
+    <p><strong>Usuario:</strong> @ticket.Usuario (@ticket.EmailUsuario)</p>
+    <p><strong>Fecha:</strong> @((DateTime)ticket.FechaCreacion).ToString("dd/MM/yyyy hh:mm tt")</p>
+</div>
+
+<h4>Archivos Adjuntos</h4>
+@if (archivos.Count == 0)
+{
+    <p>No hay archivos adjuntos.</p>
+}
+else
+{
+    <ul>
+        @foreach (var archivo in archivos)
+        {
+            <li>
+                <a href="@archivo.RutaArchivo" target="_blank">@archivo.NombreArchivo</a>
+                (@archivo.FechaSubida.ToString("dd/MM/yyyy"))
+            </li>
+        }
+    </ul>
+}
+
+<h4>Comentarios</h4>
+@if (comentarios.Count == 0)
+{
+    <p>No hay comentarios aún.</p>
+}
+else
+{
+    <div class="border rounded p-2 mb-3">
+        @foreach (var c in comentarios)
+        {
+            <div class="mb-2">
+                <strong>@c.Autor</strong> (@c.Fecha.ToString("dd/MM/yyyy hh:mm tt")):<br />
+                <span>@c.Comentario</span>
+                <hr />
+            </div>
+        }
+    </div>
+}
+
+<h4>Agregar Comentario</h4>
+<form method="post" asp-action="EnviarComentario">
+    <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+    <div class="form-group">
+        <textarea class="form-control" name="mensaje" rows="4" required></textarea>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>

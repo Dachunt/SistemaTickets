@@ -1,0 +1,56 @@
+﻿@{
+    var ticket = ViewBag.Ticket;
+    var archivos = ViewBag.Archivos;
+}
+
+<link href="~/css/usuarios.css" rel="stylesheet" />
+
+<div class="card">
+    <h2>Actualizar Estado del Ticket</h2>
+
+    <div class="mb-3">
+        <p><strong class="text-blue">Aplicación:</strong> @ticket.NombreAplicacion</p>
+        <p><strong class="text-blue">Estado Actual:</strong> @ticket.Estado</p>
+        <p><strong class="text-blue">Usuario:</strong> @ticket.Usuario</p>
+    </div>
+
+    <div class="mb-4">
+        <h5 class="text-blue">Archivos Adjuntos</h5>
+        @if (archivos != null && archivos.Count > 0)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var archivo in archivos)
+                {
+                    <li class="list-group-item">
+                        <i class="bi bi-paperclip text-blue"></i>
+                        <a href="@archivo.RutaArchivo" target="_blank">@archivo.NombreArchivo</a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">No hay archivos adjuntos disponibles.</p>
+        }
+    </div>
+
+    <form asp-action="ActualizarEstado" method="post">
+        <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+
+        <div class="form-group">
+            <label for="nuevoEstado">Nuevo Estado</label>
+            <select name="nuevoEstado" class="form-control" required>
+                <option disabled selected value="">-- Selecciona un estado --</option>
+                <option value="En Progreso">En Progreso</option>
+                <option value="En Espera de Información del Cliente">En Espera de Información del Cliente</option>
+            </select>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
