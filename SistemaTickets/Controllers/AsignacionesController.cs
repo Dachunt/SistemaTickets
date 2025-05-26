@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -111,7 +112,7 @@ namespace SistemaTickets.Controllers
             return View(asignaciones);
         }
 
-        // GET: Asignaciones/Edit/5
+        //GET: Asignaciones/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -127,39 +128,40 @@ namespace SistemaTickets.Controllers
             return View(ticket);
         }
 
-        // POST: Asignaciones/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AsignacionId,TicketId,TecnicoId,FechaAsignacion,EstadoAsignacion")] Asignaciones asignaciones)
+        public async Task<IActionResult> Edit(int id, [Bind("TicketId,Prioridad")] Tickets ticket)
         {
-            if (id != asignaciones.AsignacionId)
+            if (id != ticket.TicketId)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                var ticketExistente = await _context.Tickets.FindAsync(id);
+                if (ticketExistente == null)
                 {
-                    _context.Update(asignaciones);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AsignacionesExists(asignaciones.AsignacionId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                ticketExistente.Prioridad = ticket.Prioridad;
+                _context.Update(ticketExistente);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(asignaciones);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Tickets.Any(e => e.TicketId == ticket.TicketId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
         }
 
         private bool AsignacionesExists(int id)
