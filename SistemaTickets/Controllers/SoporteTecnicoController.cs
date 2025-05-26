@@ -74,56 +74,6 @@ namespace SistemaTickets.Controllers
             return View();
         }
 
-        public async Task<IActionResult> VerTicket(int id)
-        {
-            var userId = HttpContext.Session.GetInt32("id_usuario");
-            if (userId == null)
-            {
-                return RedirectToAction("Login", "Login");
-            }
-
-            var ticket = await (from t in _context.Tickets
-                                join u in _context.Usuarios on t.UserId equals u.UserId
-                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
-                                where t.TicketId == id
-                                select new
-                                {
-                                    t.TicketId,
-                                    t.NombreAplicacion,
-                                    t.Descripcion,
-                                    t.Prioridad,
-                                    t.Estado,
-                                    t.FechaCreacion,
-                                    t.FechaResolucion,
-                                    Usuario = u.Nombre,
-                                    Categoria = c.Nombre,
-                                    EmailUsuario = u.Email
-                                }).FirstOrDefaultAsync();
-
-            if (ticket == null)
-                return NotFound();
-
-            var archivos = await _context.ArchivosAdjuntos
-                                .Where(a => a.TicketId == id)
-                                .ToListAsync();
-
-            var comentarios = await (from c in _context.Comentarios
-                                     join u in _context.Usuarios on c.AutorId equals u.UserId
-                                     where c.TicketId == id
-                                     orderby c.FechaComentario
-                                     select new
-                                     {
-                                         Autor = u.Nombre,
-                                         Comentario = c.Comentario,
-                                         Fecha = c.FechaComentario
-                                     }).ToListAsync();
-
-            ViewBag.Ticket = ticket;
-            ViewBag.Archivos = archivos;
-            ViewBag.Comentarios = comentarios;
-
-            return View();
-        }
 
         public async Task<IActionResult> DetalleTicket(int id)
         {
@@ -175,8 +125,16 @@ namespace SistemaTickets.Controllers
         public async Task<IActionResult> EnviarComentario(int ticketId, string comentario)
         {
             var userId = HttpContext.Session.GetInt32("id_usuario");
+            var userRol = HttpContext.Session.GetInt32("rol");
 
+            var NombreRol = _context.Roles.FirstOrDefault(r => r.RolId == userRol);
+            if (NombreRol == null)
+            {
+                return RedirectToAction("Login", "Login");
+
+            }
             if (userId == null) return RedirectToAction("Login", "Login");
+
 
             var nuevoComentario = new Comentarios
             {
@@ -198,7 +156,9 @@ namespace SistemaTickets.Controllers
             });
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Home", "SoporteTecnico", new { id = ticketId });
+
+            return RedirectToAction("Home", "MisAsignaciones", new { id = ticketId });
+
         }
 
 
@@ -306,65 +266,147 @@ namespace SistemaTickets.Controllers
             return View();
         }
 
-
-        //Este es el general
-        public async Task<IActionResult> Details(
-        string nombre = "",
-        string prioridad = "",
-        string estado = "",
-        DateTime? fechaInicio = null,
-        DateTime? fechaFin = null,
-        DateTime? resolucionInicio = null,
-        DateTime? resolucionFin = null)
+        public async Task<IActionResult> cerrarTickets(string nombre = "", string prioridad = "", DateTime? fecha = null)
         {
-            var historial = await (from a in _context.Asignaciones
-                                   join t in _context.Tickets on a.TicketId equals t.TicketId
-                                   join u in _context.Usuarios on t.UserId equals u.UserId
-                                   join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
-                                   where t.Estado == "Resuelto"
-                                   select new
-                                   {
-                                       a.AsignacionId,
-                                       t.TicketId,
-                                       u.Nombre,
-                                       t.NombreAplicacion,
-                                       t.Prioridad,
-                                       t.Estado,
-                                       t.FechaCreacion,
-                                       t.FechaResolucion
-                                   }).ToListAsync();
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+
+            // Consulta de asignaciones
+            var asignacionesQuery = from a in _context.Asignaciones
+                                    join t in _context.Tickets on a.TicketId equals t.TicketId
+                                    join u in _context.Usuarios on t.UserId equals u.UserId
+                                    join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                    where a.TecnicoId == userId
+                                    select new
+                                    {
+                                        t.TicketId,
+                                        NombreAplicacion = t.NombreAplicacion, 
+                                        Categoria = c.Nombre,
+                                        UsuarioNombre = u.Nombre,
+                                        Prioridad = t.Prioridad,
+                                        FechaCreacion = t.FechaCreacion,
+                                        Estado = t.Estado
+                                    };
 
             if (!string.IsNullOrEmpty(nombre))
-                historial = historial.Where(h => h.NombreAplicacion.Contains(nombre)).ToList();
+                asignacionesQuery = asignacionesQuery.Where(a => a.NombreAplicacion.Contains(nombre));
 
             if (!string.IsNullOrEmpty(prioridad))
-                historial = historial.Where(h => h.Prioridad == prioridad).ToList();
+                asignacionesQuery = asignacionesQuery.Where(a => a.Prioridad == prioridad);
 
-            if (!string.IsNullOrEmpty(estado))
-                historial = historial.Where(h => h.Estado == estado).ToList();
+            if (fecha.HasValue)
+                asignacionesQuery = asignacionesQuery.Where(a => a.FechaCreacion.Date == fecha.Value.Date);
 
-            if (fechaInicio.HasValue)
-                historial = historial.Where(h => h.FechaCreacion >= fechaInicio.Value).ToList();
+            var asignaciones = await asignacionesQuery.ToListAsync();
 
-            if (fechaFin.HasValue)
-                historial = historial.Where(h => h.FechaCreacion <= fechaFin.Value).ToList();
+            // Obtener nombres únicos de aplicaciones para el filtro
+            var nombresDisponibles = await _context.Tickets
+                .Select(t => t.NombreAplicacion)
+                .Distinct()
+                .ToListAsync();
 
-            if (resolucionInicio.HasValue)
-                historial = historial.Where(h => h.FechaResolucion.HasValue && h.FechaResolucion >= resolucionInicio.Value).ToList();
-
-            if (resolucionFin.HasValue)
-                historial = historial.Where(h => h.FechaResolucion.HasValue && h.FechaResolucion <= resolucionFin.Value).ToList();
-
+            // Cargar en ViewBag lo que la vista necesita
+            ViewBag.Asignaciones = asignaciones;
+            ViewBag.NombresDisponibles = nombresDisponibles;
             ViewBag.NombreFiltro = nombre;
             ViewBag.PrioridadFiltro = prioridad;
-            ViewBag.EstadoFiltro = estado;
-            ViewBag.FechaInicioFiltro = fechaInicio?.ToString("yyyy-MM-dd");
-            ViewBag.FechaFinFiltro = fechaFin?.ToString("yyyy-MM-dd");
-            ViewBag.ResolucionInicioFiltro = resolucionInicio?.ToString("yyyy-MM-dd");
-            ViewBag.ResolucionFinFiltro = resolucionFin?.ToString("yyyy-MM-dd");
+            ViewBag.FechaFiltro = fecha?.ToString("yyyy-MM-dd");
 
-            return View(historial);
+            return View();
         }
+
+        // GET: Mostrar detalle y formulario para cerrar ticket
+        public async Task<IActionResult> VerDetalleYCerrarTicket(int id)
+        {
+            var ticket = await (from t in _context.Tickets
+                                join u in _context.Usuarios on t.UserId equals u.UserId
+                                join c in _context.Categorias on t.CategoriaId equals c.CategoriaId
+                                where t.TicketId == id
+                                select new
+                                {
+                                    t.TicketId,
+                                    t.NombreAplicacion,
+                                    t.Descripcion,
+                                    t.Prioridad,
+                                    t.Estado,
+                                    t.FechaCreacion,
+                                    t.FechaResolucion,
+                                    UsuarioNombre = u.Nombre,
+                                    UsuarioEmail = u.Email,
+                                    CategoriaNombre = c.Nombre
+                                }).FirstOrDefaultAsync();
+
+            if (ticket == null)
+                return NotFound();
+
+            var archivos = await _context.ArchivosAdjuntos
+                .Where(a => a.TicketId == id)
+                .ToListAsync();
+
+            var comentarios = await (from com in _context.Comentarios
+                                     join u in _context.Usuarios on com.AutorId equals u.UserId
+                                     where com.TicketId == id
+                                     orderby com.FechaComentario descending
+                                     select new
+                                     {
+                                         com.ComentarioId,
+                                         com.Comentario,
+                                         com.FechaComentario,
+                                         Autor = u.Nombre
+                                     }).ToListAsync();
+
+            ViewBag.Ticket = ticket;
+            ViewBag.Archivos = archivos;
+            ViewBag.Comentarios = comentarios;
+
+            return View();
+        }
+
+        // POST: Recibe comentario y cierra el ticket
+        [HttpPost]
+        public async Task<IActionResult> VerDetalleYCerrarTicket(int ticketId, string comentario)
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+
+            if (userId == null) return RedirectToAction("Login", "Login");
+
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null) return NotFound();
+
+            // Agregar comentario
+            if (!string.IsNullOrWhiteSpace(comentario))
+            {
+                var nuevoComentario = new Comentarios
+                {
+                    TicketId = ticketId,
+                    AutorId = userId.Value,
+                    Comentario = comentario,
+                    FechaComentario = DateTime.Now
+                };
+                _context.Comentarios.Add(nuevoComentario);
+            }
+
+            // Cambiar estado a "Resuelto"
+            string estadoAnterior = ticket.Estado;
+            ticket.Estado = "Resuelto";
+            ticket.FechaResolucion = DateTime.Now;
+
+            // Agregar registro en historial
+            var historial = new HistorialEstados
+            {
+                TicketId = ticketId,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = "Resuelto",
+                FechaCambio = DateTime.Now,
+                CambiadoPor = userId.Value
+            };
+            _context.HistorialEstados.Add(historial);
+
+            await _context.SaveChangesAsync();
+
+            // Redirigir a la lista o detalle
+            return RedirectToAction("VerHistorial", new { id = ticketId });
+        }
+
 
         public async Task<IActionResult> Index()
         {

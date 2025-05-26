@@ -80,7 +80,7 @@
                                 <span class="status-badge
                                             @(h.EstadoAnterior == "En Progreso" ? "status-enproceso" :
                                                                             h.EstadoAnterior == "En Espera de Información del Cliente" ? "status-abierto" :
-                                                                            h.EstadoAnterior == "Cerrado" || h.EstadoAnterior == "Finalizado" ? "status-cerrado" :
+                                                                            h.EstadoAnterior == "Resuelto" || h.EstadoAnterior == "Finalizado" ? "status-cerrado" :
                                                                             "status-abierto")">
                                                                                            @h.EstadoAnterior
                                                                                        </span>
@@ -89,7 +89,7 @@
                                                                                        <span class="status-badge
                                             @(h.EstadoNuevo == "En Progreso" ? "status-enproceso" :
                                                                             h.EstadoNuevo == "En Espera de Información del Cliente" ? "status-abierto" :
-                                                                            h.EstadoNuevo == "Cerrado" || h.EstadoNuevo == "Finalizado" ? "status-cerrado" :
+                                                                            h.EstadoNuevo == "Resuelto" || h.EstadoNuevo == "Finalizado" ? "status-cerrado" :
                                                                             "status-abierto")">
                             @h.EstadoNuevo
                         </span>

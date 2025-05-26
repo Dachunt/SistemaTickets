@@ -34,18 +34,12 @@
 			</a>
         </div>
         <div class="col-md-4">
-            <div class="card-option">
-                <a asp-controller="SoporteTecnico" asp-action="Details" class="text-decoration-none ">
-                    <div class="card-title">HISTORIAL</div>
-                    <div class="card-text">Historial</div>
-                </a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">CIERRE DE TICKET</div>
-                <div class="card-text">Cierre de ticket</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="cerrarTickets" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">CIERRE DE TICKET</div>
+                    <div class="card-text">Cierre de ticket</div>
+                </div>
+			</a>
         </div>
         <div class="col-md-4">
             <a asp-controller="SoporteTecnico" asp-action="Index" class="text-decoration-none ">
@@ -67,4 +61,3 @@
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

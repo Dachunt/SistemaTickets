@@ -75,22 +75,12 @@
                         <td><span class="status-badge @estadoClass">@a.Estado</span></td>
                         <td>
                             <div class="btn-group" role="group">
-                                @if (a.Estado != "Resuelto")
-                                {
-                                    <a href="@Url.Action("DetalleTicket", "SoporteTecnico", new { id = a.TicketId })" class="btn btn-outline-secondary btn-sm" title="Agregar Comentario">
-                                        <i class="fas fa-comment-alt"></i>
-                                    </a>
-                                    <a href="@Url.Action("ActualizarEstado", "SoporteTecnico", new { id = a.TicketId })" class="btn btn-outline-success btn-sm" title="Actualizar Estado">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </a>
-                                }
-
-                                <a href="@Url.Action("VerHistorial", "SoporteTecnico", new { id = a.TicketId })" class="btn btn-outline-primary btn-sm" title="Ver Proceso">
-                                    <i class="fas fa-eye"></i>
+                                <a href="@Url.Action("VerDetalleYCerrarTicket", "SoporteTecnico", new { id = a.TicketId })" class="btn btn-outline-secondary btn-sm" title="Cerrar tickets">
+                                    <i class="fas fa-comment-alt"></i>
                                 </a>
+                                
                             </div>
                         </td>
-
                     </tr>
                 }
             }

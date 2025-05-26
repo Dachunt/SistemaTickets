@@ -1,0 +1,82 @@
+﻿@{
+    var ticket = ViewBag.Ticket;
+    var archivos = ViewBag.Archivos as List<dynamic>;
+    var comentarios = ViewBag.Comentarios as List<dynamic>;
+}
+
+<div class="container mt-4">
+    <h2>Detalle del Ticket #@ticket.TicketId</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@ticket.NombreAplicacion</h5>
+            <p><strong>Descripción:</strong> @ticket.Descripcion</p>
+            <p><strong>Prioridad:</strong> @ticket.Prioridad</p>
+            <p>
+                <strong>Estado:</strong>
+                <span class="badge @(ticket.Estado == "Resuelto" ? "bg-success" : "bg-warning")">
+                    @ticket.Estado
+                </span>
+            </p>
+            <p><strong>Fecha Creación:</strong> @ticket.FechaCreacion.ToString("yyyy-MM-dd")</p>
+            <p><strong>Fecha Resolución:</strong> @(ticket.FechaResolucion != null ? ((DateTime)ticket.FechaResolucion).ToString("yyyy-MM-dd") : "-")</p>
+            <p><strong>Usuario Reportante:</strong> @ticket.UsuarioNombre (@ticket.UsuarioEmail)</p>
+            <p><strong>Categoría:</strong> @ticket.CategoriaNombre</p>
+        </div>
+    </div>
+
+    <h4>Archivos Adjuntos</h4>
+    @if (archivos != null && archivos.Count > 0)
+    {
+        <ul class="list-group mb-4">
+            @foreach (var archivo in archivos)
+            {
+                <li class="list-group-item">
+                    <a href="@Url.Action("DescargarArchivo", "Tickets", new { id = archivo.Id })">@archivo.NombreArchivo</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No hay archivos adjuntos.</p>
+    }
+
+    <h4>Comentarios</h4>
+    @if (comentarios != null && comentarios.Count > 0)
+    {
+        <ul class="list-group mb-4">
+            @foreach (var c in comentarios)
+            {
+                <li class="list-group-item">
+                    <strong>@c.Autor</strong>
+                    <small class="text-muted">(@c.FechaComentario.ToString("yyyy-MM-dd HH:mm"))</small><br />
+                    @c.Comentario
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No hay comentarios aún.</p>
+    }
+
+    @if (ticket.Estado == "Resuelto")
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-lock"></i> Este ticket ya está cerrado. No es posible realizar más acciones.
+        </div>
+        <a href="@Url.Action("VerHistorial", "SoporteTecnico")" class="btn btn-secondary">Volver a Mis Asignaciones</a>
+    }
+    else
+    {
+        <form asp-action="VerDetalleYCerrarTicket" method="post">
+            <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+            <div class="mb-3">
+                <label for="comentario" class="form-label">Agregar comentario antes de cerrar el ticket (opcional):</label>
+                <textarea name="comentario" id="comentario" class="form-control" rows="4" placeholder="Escribe aquí tu comentario..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger">Cerrar Ticket</button>
+            <a href="@Url.Action("VerHistorial", "SoporteTecnico")" class="btn btn-secondary ms-2">Volver a Mis Asignaciones</a>
+        </form>
+    }
+</div>
