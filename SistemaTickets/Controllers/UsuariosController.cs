@@ -21,7 +21,7 @@ namespace SistemaTickets.Controllers
             _context = context;
             _hasher = new PasswordHasher<Usuarios>();
         }
-
+        [HttpGet]
         public IActionResult Registrar()
         {
             var roles = _context.Roles.ToList();
@@ -37,9 +37,17 @@ namespace SistemaTickets.Controllers
             bool correoExiste = await _context.Usuarios.AnyAsync(u => u.Email == usuario.Email);
             if (correoExiste)
             {
-                TempData["Error"] = "El correo ingresado ya está registrado.";
+                TempData["Error"] = "El correo ingresado ya se encuentra registrado.";
                 return View(usuario);
             }
+
+            bool correoEmpresaExiste = await _context.Externo.AnyAsync(e => e.Email == EmailEmpresa);
+            if (correoEmpresaExiste)
+            {
+                TempData["Error"] = "El correo de la empresa ya se encuentra registrado.";
+                return View(usuario);
+            }
+
 
             var rol = await _context.Roles.FindAsync(usuario.RolId);
             usuario.TieneEmpresa = rol != null && rol.NombreRol == "Externo";
@@ -110,6 +118,14 @@ namespace SistemaTickets.Controllers
             if (usuario == null)
                 return NotFound();
 
+            bool correoEmpresaExiste = await _context.Externo.AnyAsync(e => e.Email == EmailEmpresa);
+            if (correoEmpresaExiste)
+            {
+                TempData["Error"] = "El correo de la empresa ya se encuentra registrado.";
+                return RedirectToAction("VerEmpresas", new { id = userId });
+
+            }
+
             var nuevaEmpresa = new Externo
             {
                 NombreEmpresa = NombreEmpresa,
@@ -134,6 +150,7 @@ namespace SistemaTickets.Controllers
             return RedirectToAction("VerEmpresas", new { id = userId });
         }
         // GET: Usuarios/Detalles/5
+        [HttpGet]
         public async Task<IActionResult> Detalles(int? id)
         {
             if (id == null)
@@ -143,8 +160,8 @@ namespace SistemaTickets.Controllers
 
             var usuario = await _context.Usuarios
                 .Include(u => u.Rol)
-                .Include(u => u.UsuarioEmpresa) 
-                    .ThenInclude(ue => ue.Externo) 
+                .Include(u => u.UsuarioEmpresa)
+                    .ThenInclude(ue => ue.Externo)
                 .FirstOrDefaultAsync(u => u.UserId == id);
 
             if (usuario == null)
@@ -219,8 +236,24 @@ namespace SistemaTickets.Controllers
 
             return RedirectToAction("Index");
         }
+        public async Task<IActionResult> Perfil()
+        {
+            var userId = HttpContext.Session.GetInt32("id_usuario");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+            var usuario = await _context.Usuarios
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
 
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return View(usuario);
 
+        }
     }
 
 }

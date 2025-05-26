@@ -48,7 +48,7 @@
         <label class="form-check-label fw-medium" for="toggleForm">¿Agregar nueva empresa?</label>
     </div>
 
-    <form asp-action="AgregarEmpresa" method="post" class="border rounded p-4 bg-light mt-3" id="formNuevaEmpresa" style="display:none;">
+    <form asp-action="AgregarEmpresa" asp-controller="Usuarios"  method="post" class="border rounded p-4 bg-light mt-3" id="formNuevaEmpresa" style="display:none;">
         <input type="hidden" name="userId" value="@ViewBag.UsuarioId" />
 
         <div class="row g-3">
@@ -66,7 +66,7 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label">Teléfono Empresa</label>
-                <input name="TelefonoEmpresa" class="form-control rounded-pill" required />
+                <input name="TelefonoEmpresa" class="form-control rounded-pill" type="number" required  maxlength="8" />
             </div>
         </div>
 
@@ -79,6 +79,7 @@
 </div>
 
 @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

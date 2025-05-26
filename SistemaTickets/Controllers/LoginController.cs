@@ -25,7 +25,7 @@ namespace SistemaTickets.Controllers
             if (ModelState.IsValid)
             {
                 // Verificar si ya existe un usuario con ese correo
-                var existe = _sistemaContext.Usuarios.FirstOrDefault(u => u.Email == usuario.Email);
+                var existe = _sistemaContext.Usuarios.FirstOrDefault(u => u.Email == usuario.Email && u.Estado == true);
                 if (existe != null)
                 {
                     ViewBag.Error = "El correo ya está registrado.";

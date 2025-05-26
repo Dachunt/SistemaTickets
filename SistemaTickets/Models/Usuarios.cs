@@ -19,12 +19,12 @@ namespace SistemaTickets.Models
 
         [Required(ErrorMessage = "El teléfono es obligatorio")]
         [Phone(ErrorMessage = "Formato de teléfono inválido")]
-        [StringLength(20)]
+        [StringLength(8, ErrorMessage = "El teléfono no puede tener más de 8 caracteres (ej: 79812412)")]
         public string Telefono { get; set; }
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos  caracteres")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8  caracteres")]
         public string Contrasena { get; set; }
 
         [Required(ErrorMessage = "Debe seleccionar un rol")]

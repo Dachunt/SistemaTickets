@@ -26,7 +26,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label asp-for="Telefono"></label>
-            <input asp-for="Telefono" class="form-control" />
+            <input asp-for="Telefono" class="form-control" type="number"  required maxlength="8" />
             <span asp-validation-for="Telefono" class="text-danger"></span>
         </div>
         <div class="form-group col-md-6">
@@ -49,27 +49,27 @@
         <h5>Datos de Empresa</h5>
         <div class="form-group">
             <label>Nombre de Empresa</label>
-            <input name="NombreEmpresa" class="form-control" />
+            <input name="NombreEmpresa" class="form-control" required/>
         </div>
         <div class="form-group">
             <label>Responsable</label>
-            <input name="NombreResponsable" class="form-control" />
+            <input name="NombreResponsable" class="form-control" required />
         </div>
         <div class="form-group">
             <label>Email Empresa</label>
-            <input name="EmailEmpresa" type="email" class="form-control" />
+            <input name="EmailEmpresa" type="email" class="form-control" required"/>
         </div>
         <div class="form-group">
             <label>Teléfono Empresa</label>
-            <input name="TelefonoEmpresa" class="form-control" />
+            <input name="TelefonoEmpresa" class="form-control" required type="number" maxlength="8" />
         </div>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block mt-4">Registrar</button>
 </form>
 
-
 @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
