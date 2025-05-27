@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SistemaTickets.Atributos;
 using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
@@ -33,17 +35,16 @@ namespace SistemaTickets.Controllers
             //    .FirstOrDefault(u => u.Email == email && u.Contrasena == contrasena);
             var user = _sistemaContext.Usuarios
                .FirstOrDefault(u => u.Email == email);
-
-            var resultado = _hasher.VerifyHashedPassword(user, user.Contrasena, contrasena);
-
-            if (resultado != PasswordVerificationResult.Success)
-            {
-                user = null; // Si la verificación falla, establecemos user como null
-            }
+            
 
             if (user != null)
             {
+                var resultado = _hasher.VerifyHashedPassword(user, user.Contrasena, contrasena);
 
+                if (resultado != PasswordVerificationResult.Success)
+                {
+                    user = null; // Si la verificación falla, establecemos user como null
+                }
                 HttpContext.Session.SetInt32("id_usuario", user.UserId);
                 HttpContext.Session.SetString("nombre", user.Nombre);
                 HttpContext.Session.SetInt32("rol", user.RolId);
@@ -65,6 +66,7 @@ namespace SistemaTickets.Controllers
                 
             }
 
+            
             ViewBag.Error = "Correo o contraseña incorrectos.";
             return View();
 
@@ -76,6 +78,9 @@ namespace SistemaTickets.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
+
+        
+
 
     }
 

@@ -215,5 +215,40 @@ namespace SistemaTickets.Controllers
         {
             return _context.Asignaciones.Any(e => e.AsignacionId == id);
         }
+        public async Task<IActionResult> History()
+        {
+            var usuarios = await _context.Usuarios
+                .Where(u => u.RolId == 3) 
+                .ToListAsync();
+
+            // Obtener tickets abiertos que NO estén asignados, con su categoría
+            var ticketsConCategoria = await (from t in _context.Tickets
+                                             join c in _context.Categorias
+                                             on t.CategoriaId equals c.CategoriaId
+                                             where t.Estado == "Abierto"
+                                             select new
+                                             {
+                                                 t.TicketId,
+                                                 t.NombreAplicacion,
+                                                 t.Descripcion,
+                                                 t.Prioridad,
+                                                 t.Estado,
+                                                 CategoriaNombre = c.Nombre
+                                             }).ToListAsync();
+
+            // Crear la lista de ViewModels
+            var viewModels = ticketsConCategoria.Select(t => new TicketAsignacionViewModel
+            {
+                TicketId = t.TicketId,
+                NombreAplicacion = t.NombreAplicacion,
+                Descripcion = t.Descripcion,
+                Prioridad = t.Prioridad,
+                Estado = t.Estado,
+                Categoria = t.CategoriaNombre
+            }).ToList();
+
+            return View(viewModels);
+        }
+
     }
 }
