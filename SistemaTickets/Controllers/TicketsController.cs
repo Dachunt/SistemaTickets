@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class TicketsController : Controller
     {
         private readonly SistemaTicketsContext _context;

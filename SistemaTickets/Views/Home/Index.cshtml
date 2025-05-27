@@ -42,10 +42,12 @@
             </a>
         </div>
         <div class="col-md-4">
-            <div class="card-option">
-                <div class="card-title">CIERRE DE TICKET</div>
-                <div class="card-text">Cierre de ticket</div>
-            </div>
+            <a asp-controller="SoporteTecnico" asp-action="cerrarTickets" class="text-decoration-none ">
+                <div class="card-option">
+                    <div class="card-title">CIERRE DE TICKET</div>
+                    <div class="card-text">Cierre de ticket</div>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
             <a href="@Url.Action("Index", "Dashboard")" style="text-decoration: none; color: inherit;">

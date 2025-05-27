@@ -4,6 +4,8 @@ using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class LoginController : Controller
     {
         private readonly SistemaTicketsContext _sistemaContext;

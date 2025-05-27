@@ -7,6 +7,8 @@ using QuestPDF.Fluent;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class InformesAdminController : Controller
     {
         private readonly SistemaTicketsContext _context;

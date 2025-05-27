@@ -8,6 +8,8 @@ using System.Security.Claims;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class SoporteTecnicoController : Controller
     {
 

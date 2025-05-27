@@ -11,6 +11,7 @@ using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
     public class AsignacionesController : Controller
     {
         private readonly SistemaTicketsContext _context;

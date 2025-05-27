@@ -12,6 +12,8 @@ using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class UsuariosController : Controller
     {
         private readonly SistemaTicketsContext _context;

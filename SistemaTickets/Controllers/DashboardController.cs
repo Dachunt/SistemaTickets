@@ -4,6 +4,8 @@ using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
 {
+    [SesionActiva]
+
     public class DashboardController : Controller
     {
         // GET: GraficosAdminController
