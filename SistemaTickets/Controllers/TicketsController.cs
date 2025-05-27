@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SistemaTickets.Atributos;
 using SistemaTickets.Models;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,24 @@ namespace SistemaTickets.Controllers
                 tickets.Estado = "Abierto";
 
                 _context.Add(tickets);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
+
+                var usuarioCreador = await _context.Usuarios
+                        .Where(u => u.UserId == userId)
+                        .Select(u => new { u.Nombre, u.Email })
+                        .FirstOrDefaultAsync();
+
+                if (usuarioCreador != null)
+                {
+                    var emailService = new EmailService();
+                    emailService.EnviarCorreoCreacionTicket(
+                        usuarioCreador.Email,
+                        usuarioCreador.Nombre,
+                        tickets.TicketId,
+                        tickets.NombreAplicacion,
+                        tickets.Descripcion
+                    );
+                }
 
                 if (Archivos != null && Archivos.Count > 0)
                 {
@@ -102,7 +120,7 @@ namespace SistemaTickets.Controllers
                     await _context.SaveChangesAsync();
 
                 }
-                
+
                 if (NombreRol.NombreRol == "Administrador")
                 {
                     TempData["MensajeExitoAdmin"] = "El ticket fue creado exitosamente.";
@@ -234,36 +252,42 @@ namespace SistemaTickets.Controllers
             return _context.Tickets.Any(e => e.TicketId == id);
         }
 
-          public async Task<IActionResult> TicketsAsignados(string nombreTecnico, DateTime? fechaInicio, DateTime? fechaFin)
-          {
-              var query = _context.Asignaciones
-                  .Include(a => a.Ticket)
-                  .Include(a => a.Tecnico)
-                  .Where(a => a.EstadoAsignacion == "Asignado" && (a.Tecnico.RolId == 1 || a.Tecnico.RolId == 2))
-                  .AsQueryable();
+        public async Task<IActionResult> TicketsAsignados(string nombreTecnico, DateTime? fechaInicio, DateTime? fechaFin, string prioridad)
+        {
+            var query = _context.Asignaciones
+                .Include(a => a.Ticket)
+                .Include(a => a.Tecnico)
+                .Where(a => a.EstadoAsignacion == "Asignado" && (a.Tecnico.RolId == 1 || a.Tecnico.RolId == 2))
+                .AsQueryable();
 
-              if (!string.IsNullOrEmpty(nombreTecnico))
-              {
-                  query = query.Where(a => a.Tecnico.Nombre.Contains(nombreTecnico));
-              }
+            if (!string.IsNullOrEmpty(nombreTecnico))
+            {
+                query = query.Where(a => a.Tecnico.Nombre.Contains(nombreTecnico));
+            }
 
-              if (fechaInicio.HasValue)
-              {
-                  query = query.Where(a => a.Ticket.FechaCreacion >= fechaInicio.Value);
-              }
+            if (fechaInicio.HasValue)
+            {
+                query = query.Where(a => a.Ticket.FechaCreacion >= fechaInicio.Value);
+            }
 
-              if (fechaFin.HasValue)
-              {
-                  query = query.Where(a => a.Ticket.FechaCreacion <= fechaFin.Value);
-              }
+            if (fechaFin.HasValue)
+            {
+                query = query.Where(a => a.Ticket.FechaCreacion <= fechaFin.Value);
+            }
 
-              var asignaciones = await query.ToListAsync();
+            if (!string.IsNullOrEmpty(prioridad))
+            {
+                query = query.Where(a => a.Ticket.Prioridad == prioridad);
+            }
 
-              return View(asignaciones);
-          }
+            var asignaciones = await query.ToListAsync();
+
+            return View(asignaciones);
+        }
 
 
-       
+
+
 
     }
 }

@@ -1,52 +1,82 @@
 ﻿@model IEnumerable<SistemaTickets.Models.Asignaciones>
 
-<h2>Tickets Asignados</h2>
+@{
+    ViewBag.Title = "Tickets Asignados";
+}
 
-<form method="get" asp-action="TicketsAsignados" class="mb-3">
-    <div class="form-row">
-        <div class="form-group col-md-3">
-            <label>Nombre del Técnico</label>
-            <input type="text" name="nombreTecnico" class="form-control" value="@Context.Request.Query["nombreTecnico"]" />
-        </div>
-        <div class="form-group col-md-3">
-            <label>Fecha Inicio</label>
-            <input type="date" name="fechaInicio" class="form-control" value="@Context.Request.Query["fechaInicio"]" />
-        </div>
-        <div class="form-group col-md-3">
-            <label>Fecha Fin</label>
-            <input type="date" name="fechaFin" class="form-control" value="@Context.Request.Query["fechaFin"]" />
-        </div>
-        <div class="form-group col-md-3 align-self-end">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </div>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/css/usuarios.css">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-blue fw-bold">Tickets Asignados</h2>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="nombreTecnico" class="form-control rounded-pill" placeholder="Nombre del Técnico"
+               value="@Context.Request.Query["nombreTecnico"]" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="fechaInicio" class="form-control rounded-pill"
+               value="@Context.Request.Query["fechaInicio"]" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="fechaFin" class="form-control rounded-pill"
+               value="@Context.Request.Query["fechaFin"]" />
+    </div>
+    <div class="col-md-3">
+        <select name="prioridad" class="form-select rounded-pill">
+            <option value="">-- Todas las prioridades --</option>
+            <option value="Crítico" selected="@(Context.Request.Query["prioridad"] == "Crítico" ? "selected" : null)">Crítico</option>
+            <option value="Importante" selected="@(Context.Request.Query["prioridad"] == "Importante" ? "selected" : null)">Importante</option>
+            <option value="Baja" selected="@(Context.Request.Query["prioridad"] == "Baja" ? "selected" : null)">Baja</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+            <i class="fas fa-search"></i> Filtrar
+        </button>
     </div>
 </form>
 
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Aplicación</th>
-            <th>Descripción</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Fecha de creación</th>
-            <th>Técnico asignado</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var asignacion in Model)
-        {
+<!-- Tabla -->
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead class="table-light">
             <tr>
-                <td>@asignacion.Ticket.TicketId</td>
-                <td>@asignacion.Ticket.NombreAplicacion</td>
-                <td>@asignacion.Ticket.Descripcion</td>
-                <td>@asignacion.Ticket.Prioridad</td>
-                <td>@asignacion.Ticket.Estado</td>
-                <td>@asignacion.Ticket.FechaCreacion.ToShortDateString()</td>
-                <td>@asignacion.Tecnico.Nombre</td>
+                <th># Ticket</th>
+                <th>Aplicación</th>
+                <th>Descripción</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha de creación</th>
+                <th>Técnico asignado</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var asignacion in Model)
+                {
+                    <tr>
+                        <td>#@asignacion.Ticket.TicketId</td>
+                        <td>@asignacion.Ticket.NombreAplicacion</td>
+                        <td>@asignacion.Ticket.Descripcion</td>
+                        <td>@asignacion.Ticket.Prioridad</td>
+                        <td>@asignacion.Ticket.Estado</td>
+                        <td>@asignacion.Ticket.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td>@asignacion.Tecnico.Nombre</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay tickets asignados con los filtros actuales.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

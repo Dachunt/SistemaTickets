@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SistemaTickets.Atributos;
 using SistemaTickets.Models;
 
 namespace SistemaTickets.Controllers
@@ -90,6 +91,23 @@ namespace SistemaTickets.Controllers
 
             _context.Asignaciones.Add(asignacion);
             await _context.SaveChangesAsync();
+
+            var ticket = await _context.Tickets.FindAsync(TicketId);
+            var tecnico = await _context.Usuarios.FindAsync(TecnicoId);
+
+            if (ticket != null && tecnico != null)
+            {
+                var emailService = new EmailService();
+                emailService.EnviarCorreoAsignacionTicket(
+                    tecnico.Email,
+                    tecnico.Nombre,
+                    ticket.TicketId,
+                    ticket.NombreAplicacion,
+                    ticket.Descripcion,
+                    asignacion.FechaAsignacion
+                );
+            }
+
 
             TempData["Success"] = "El ticket fue asignado correctamente.";
             return RedirectToAction(nameof(Index));
