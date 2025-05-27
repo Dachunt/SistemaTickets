@@ -2,7 +2,9 @@
 @{
     var ticket = ViewBag.Ticket;
     var archivos = ViewBag.Archivos as List<ArchivosAdjuntos>;
-    var comentarios = ViewBag.Comentarios as List<dynamic>;
+    var comentarios = ViewBag.Comentarios as IEnumerable<dynamic>;
+
+    // var comentarios = ViewBag.Comentarios as List<Comentarios>;
 }
 
 <div class="container mt-4">
@@ -71,24 +73,24 @@
                 }
             </div>
 
-            <div class="mb-4">
-                <h5><i class="bi bi-chat-dots"></i> Comentarios</h5>
+            <div class="mb-4">  
+               <h5><i class="bi bi-chat-dots"></i> Comentarios</h5>
                 @if (comentarios != null && comentarios.Any())
-                {
-                    <div class="list-group">
+                {  
+                   <div class="list-group">
                         @foreach (var c in comentarios)
-                        {
-                            <div class="list-group-item">
-                                <strong>@c.Autor</strong> <span class="text-muted">(@c.FechaComentario.ToString("g"))</span>
-                                <p class="mb-0">@c.Comentario</p>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted">No hay comentarios aún.</p>
-                }
+                        {  
+                           <div class="list-group-item">  
+                               <strong>@c.Autor</strong> <span class="text-muted">(@c.FechaComentario.ToString("g"))</span>  
+                               <p class="mb-0">@c.Comentario</p>  
+                           </div>  
+                       }  
+                   </div>  
+               }  
+               else  
+               {  
+                   <p class="text-muted">No hay comentarios aún.</p>  
+               }  
             </div>
 
             <div class="mb-3">
